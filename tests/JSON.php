@@ -107,6 +107,7 @@ class JSON extends \atoum\test
         ;
     }
 
+    /** @php 5.4 */
     public function testDecode()
     {
         $this
@@ -134,6 +135,37 @@ class JSON extends \atoum\test
                         ->isIdenticalTo($decoded)
                     ->function('json_decode')
                         ->wasCalledWithIdenticalArguments($json, true, $defaultDepth, 0)
+                        ->once
+        ;
+    }
+
+    /** @php < 5.4 */
+    public function testDecode53()
+    {
+        $this
+            ->if($this->function->json_decode = $decoded = uniqid())
+            ->and($defaultAssoc = false)
+            ->and($defaultDepth = 128)
+            ->then
+                ->assert('no options')
+                    ->string(testedClass::decode($json = uniqid()))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($json, $defaultAssoc, $defaultDepth)
+                        ->once
+
+                ->assert('force associative with argument')
+                    ->string(testedClass::decode($json = uniqid(), $options = 0, $assoc = true))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithArguments($json, $assoc, $defaultDepth)
+                        ->once
+
+                ->assert('force associative with options')
+                    ->string(testedClass::decode($json = uniqid(), $options = testedClass::AS_ARRAY))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($json, true, $defaultDepth)
                         ->once
         ;
     }
