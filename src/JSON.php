@@ -221,7 +221,11 @@ class JSON
      */
     public static function decode($json, $options = 0, $assoc = false)
     {
-        return json_decode($json, ($options & static::AS_ARRAY) || $assoc, 512, $options & ~static::AS_ARRAY);
+        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+            return json_decode($json, ($options & static::AS_ARRAY) || $assoc, 512, $options & ~static::AS_ARRAY);
+        } else {
+            return json_decode($json, ($options & static::AS_ARRAY) || $assoc, 128);
+        }
     }
 
     /**
