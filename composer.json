@@ -1,0 +1,22 @@
+{
+  "name": "Tiross/json",
+  "description": "JSON representation made easy with non UTF8 values",
+  "license": "MIT",
+  "authors": [
+      {
+          "name": "Tiross"
+      }
+  ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/Tiross/json"
+    }
+  ],
+  "autoload": {
+    "psr-4": {"Tiross\\json\\": "src/"}
+  },
+  "require-dev": {
+    "atoum/atoum": "2.*"
+  }
+}

@@ -1,0 +1,279 @@
+<?php
+
+/**
+ * JSON representation made easy with non UTF8 values
+ *
+ * @author Tiross
+ */
+
+namespace Tiross\json;
+
+// Patch pour l'utilisation sous PHP 5.3
+
+/** @ignore */
+if (!defined('JSON_BIGINT_AS_STRING')) {
+    define('JSON_BIGINT_AS_STRING', 0);
+}
+
+/** @ignore */
+if (!defined('JSON_PRETTY_PRINT')) {
+    define('JSON_PRETTY_PRINT', 0);
+}
+
+/** @ignore */
+if (!defined('JSON_UNESCAPED_SLASHES')) {
+    define('JSON_UNESCAPED_SLASHES', 0);
+}
+
+/** @ignore */
+if (!defined('JSON_UNESCAPED_UNICODE')) {
+    define('JSON_UNESCAPED_UNICODE', 0);
+}
+
+
+/**
+ * JSON representation made easy with non UTF8 values
+ *
+ * This class uses build-in JSON function provided by PHP, adding little functionnality.
+ *
+ * @see http://php.net/manual/en/book.json.php JSON on PHP.net
+ * @see http://json.org/ JSON.org
+ * @author Tiross
+ */
+class JSON
+{
+    /**
+     * All `<` and `>` are converted to `\u003C` and `\u003E`.
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-hex-tag Doc PHP.net
+     * @since PHP 5.3
+     * @var integer
+     */
+    const HEX_TAG = JSON_HEX_TAG;
+
+    /**
+     * All &s are converted to `\u0026`.
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-hex-amp Doc PHP.net
+     * @since PHP 5.3
+     * @var integer
+     */
+    const HEX_AMP = JSON_HEX_AMP;
+
+    /**
+     * All `"` are converted to `\u0022`.
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-hex-quot Doc PHP.net
+     * @since PHP 5.3
+     * @var integer
+     */
+    const HEX_QUOT = JSON_HEX_QUOT;
+
+    /**
+     * All `'` are converted to `\u0027`.
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-hex-apos Doc PHP.net
+     * @since PHP 5.3
+     * @var integer
+     */
+    const HEX_APOS = JSON_HEX_APOS;
+
+    /**
+     * Encodes numeric strings as numbers.
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-numeric-check Doc PHP.net
+     * @since PHP 5.3.3
+     * @var integer
+     */
+    const NUMERIC_CHECK = JSON_NUMERIC_CHECK;
+
+    /**
+     * Encodes large integers as their original string value.
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-bigint-as-string Doc PHP.net
+     * @since PHP 5.4
+     * @var integer
+     */
+    const BIGINT_AS_STRING = JSON_BIGINT_AS_STRING;
+
+    /**
+     * Outputs an object rather than an array when a non-associative array is used.
+     *
+     * Especially useful when the recipient of the output is expecting an object and the array is empty.
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-force-object Doc PHP.net
+     * @since PHP 5.3
+     * @var integer
+     */
+    const FORCE_OBJECT = JSON_FORCE_OBJECT;
+
+    /**
+     * Use whitespace in returned data to format it.
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-pretty-print Doc PHP.net
+     * @since PHP 5.4
+     * @var integer
+     */
+    const PRETTY_PRINT = JSON_PRETTY_PRINT;
+
+    /**
+     * Don't escape `/`.
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-unescaped-slashes Doc PHP.net
+     * @since PHP 5.4
+     * @var integer
+     */
+    const UNESCAPED_SLASHES = JSON_UNESCAPED_SLASHES;
+
+    /**
+     * Encode multibyte Unicode characters literally (default is to escape as `\uXXXX`).
+     *
+     * @see http://php.net/manual/en/json.constants.php#constant.json-unescaped-unicode Doc PHP.net
+     * @since PHP 5.4
+     * @var integer
+     */
+    const UNESCAPED_UNICODE = JSON_UNESCAPED_UNICODE;
+
+    /**
+     * Force encoding to UTF8.
+     * @var integer
+     */
+    const UTF8_ENCODE = 2048;
+
+    /**
+     * When used, returned objects will be converted into associative arrays..
+     * @var integer
+     */
+    const AS_ARRAY = 1024;
+
+    /**
+     * This class does not admit instance.
+     * @ignore
+     */
+    private function __construct()
+    {
+    }
+
+    /**
+     * Returns the JSON representation of a value
+     *
+     * @see http://php.net/manual/en/function.json-encode.php Doc PHP.net
+     * @param  mixed   $value   The value being encoded.
+     * @param  integer $options Bitmask using class constants
+     * @return string           Returns a JSON encoded string
+     */
+    public static function encode($value, $options = 0)
+    {
+        $encode  = $options & static::UTF8_ENCODE;
+        $isArray = true;
+
+        // On encapsule dans un array pour utiliser array_walk_recursive
+        if (!is_array($value)) {
+            $isArray = false;
+            $value = array($value);
+        }
+
+        array_walk_recursive($value, function (&$v) use ($encode) {
+            if ($encode && !is_object($v)) {
+                $v = utf8_encode($v);
+
+            } elseif (is_object($v) && method_exists($v, '__toString') && !($v instanceof \JsonSerializable)) {
+                if ($encode) {
+                    $v = utf8_encode((string) $v);
+                } else {
+                    $v = (string) $v;
+                }
+            }
+        });
+
+        if (!$isArray) {
+            $value = $value[0];
+        }
+
+        return json_encode($value, $options & ~static::AS_ARRAY & ~static::UTF8_ENCODE);
+    }
+
+    /**
+     * Write the JSON representation of a value into a file
+     *
+     * If `$file` does not exist, the file is created.
+     * Otherwise, the existing file is overwritten,
+     *
+     * @param  mixed   $value   The value being encoded.
+     * @param  string  $file    Path to the file where to write the data.
+     * @param  integer $options Bitmask using class constants.
+     */
+    public static function encodeToFile($json, $file, $options = 0)
+    {
+        return file_put_contents($file, JSON::encode($json, $options)) !== false;
+    }
+
+
+    /**
+     * Decodes a JSON string
+     *
+     * @see http://php.net/manual/en/function.json-decode.php Doc PHP.net
+     * @param  string  $json    The json string being decoded.
+     * @param  integer $options Bitmask of JSON decode options.
+     *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
+     * @param  boolean $assoc   When `TRUE`, returned objects will be converted into associative arrays.
+     * @return mixed
+     */
+    public static function decode($json, $options = 0, $assoc = false)
+    {
+        return json_decode($json, ($options & static::AS_ARRAY) || $assoc, 512, $options & ~static::AS_ARRAY);
+    }
+
+    /**
+     * Decodes a JSON string into associative array
+     *
+     * This method is a shortcut for `JSON::decode($json, $options | static::AS_ARRAY)`.
+     *
+     * @see JSON::decode() JSON::decode()
+     * @param  string  $json    The json string being decoded.
+     * @param  integer $options Bitmask of JSON decode options.
+     *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
+     * @return mixed
+     */
+    public static function decodeToArray($json, $options = 0)
+    {
+        return JSON::decode($json, $options | static::AS_ARRAY);
+    }
+
+    /**
+     * Decodes a JSON string into object
+     *
+     * This method is a shortcut for `JSON::decode($json, $options & ~JSON::AS_ARRAY)`.
+     *
+     * @see JSON::decode() JSON::decode()
+     * @param  string  $json    The json string being decoded.
+     * @param  integer $options Bitmask of JSON decode options.
+     *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
+     * @return mixed
+     */
+    public static function decodeToObject($json, $options = 0)
+    {
+        return JSON::decode($json, $options & ~static::AS_ARRAY);
+    }
+
+    /**
+     * Decodes a JSON string from file
+     *
+     * This method is a shortcut for `JSON::decode($json, $options & ~JSON::AS_ARRAY)`.
+     *
+     * @see JSON::decode() JSON::decode()
+     * @param  string  $file    Path to the file where to write the data.
+     * @param  integer $options Bitmask of JSON decode options.
+     *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
+     * @throws FileNotFoundException Thrown when $file is not a file
+     * @return mixed
+     */
+    public static function decodeFile($file, $options = 0)
+    {
+        if (!is_file($file)) {
+            throw new FileNotFoundException(sprintf('File "%s" does not exist', $file), 101);
+        }
+
+        return JSON::decode(file_get_contents($file), $options);
+    }
+}
