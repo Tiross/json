@@ -5,6 +5,7 @@ namespace Tiross\json\tests\unit;
 use Tiross\json\JSON as testedClass;
 
 require_once __DIR__ . '/../vendor/bin/atoum';
+require_once __DIR__ . '/JsonSerializable.php'; // Test on 5.3 hack
 
 
 class JSON extends \atoum\test
