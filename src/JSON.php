@@ -269,13 +269,13 @@ class JSON
      * @param  string  $file    Path to the file where to write the data.
      * @param  integer $options Bitmask of JSON decode options.
      *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
-     * @throws FileNotFoundException Thrown when $file is not a file
+     * @throws Exception\FileNotFoundException Thrown when $file is not a file
      * @return mixed
      */
     public static function decodeFile($file, $options = 0)
     {
         if (!is_file($file)) {
-            throw new FileNotFoundException(sprintf('File "%s" does not exist', $file), 101);
+            throw new Exception\FileNotFoundException(sprintf('File "%s" does not exist', $file), 101);
         }
 
         return JSON::decode(file_get_contents($file), $options);

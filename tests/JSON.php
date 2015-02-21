@@ -215,7 +215,7 @@ class JSON extends \atoum\test
                 ->exception(function () use ($file) {
                     testedClass::decodeFile($file);
                 })
-                    ->isInstanceOf('\Tiross\json\FileNotFoundException')
+                    ->isInstanceOf('\Tiross\json\Exception\FileNotFoundException')
                     ->hasCode(101)
                     ->hasMessage(sprintf('File "%s" does not exist', $file))
         ;
