@@ -6,7 +6,7 @@
  * @author Tiross
  */
 
-namespace Tiross\json;
+namespace Tiross\json\Exception;
 
 /**
  * File not found exception
