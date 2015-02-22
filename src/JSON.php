@@ -30,6 +30,22 @@ if (!defined('JSON_UNESCAPED_UNICODE')) {
     define('JSON_UNESCAPED_UNICODE', 0);
 }
 
+/** @ignore */
+if (!defined('JSON_ERROR_RECURSION')) {
+    define('JSON_ERROR_RECURSION', 0);
+}
+
+/** @ignore */
+if (!defined('JSON_ERROR_INF_OR_NAN')) {
+    define('JSON_ERROR_INF_OR_NAN', 0);
+}
+
+/** @ignore */
+if (!defined('JSON_ERROR_UNSUPPORTED_TYPE')) {
+    define('JSON_ERROR_UNSUPPORTED_TYPE', 0);
+}
+
+
 
 /**
  * JSON representation made easy with non UTF8 values
@@ -193,14 +209,49 @@ class JSON
         $encoded = json_encode($value, $options & ~static::AS_ARRAY & ~static::UTF8_ENCODE);
 
         if (false === $encoded) {
-            $message   = json_last_error_msg();
             $exception = 'Exception';
             $code      = 1;
 
             switch (json_last_error()) {
+                case JSON_ERROR_DEPTH:
+                    $message   = 'The maximum stack depth has been exceeded';
+                    $code = 201;
+                    break;
+
+                case JSON_ERROR_STATE_MISMATCH:
+                    $message   = 'Invalid or malformed JSON';
+                    $code = 202;
+                    break;
+
+                case JSON_ERROR_CTRL_CHAR:
+                    $message   = 'Control character error, possibly incorrectly encoded';
+                    $code = 203;
+                    break;
+
+                case JSON_ERROR_SYNTAX:
+                    $message   = 'Syntax error, malformed JSON';
+                    $code = 204;
+                    break;
+
                 case JSON_ERROR_UTF8:
                     $exception = __NAMESPACE__ . '\Exception\MalformedCharactersException';
+                    $message   = 'Malformed UTF-8 characters, possibly incorrectly encoded';
                     $code = 205;
+                    break;
+
+                case JSON_ERROR_RECURSION:
+                    $message   = 'One or more recursive references in the value to be encoded';
+                    $code = 206;
+                    break;
+
+                case JSON_ERROR_INF_OR_NAN:
+                    $message   = 'One or more NAN or INF values in the value to be encoded';
+                    $code = 207;
+                    break;
+
+                case JSON_ERROR_UNSUPPORTED_TYPE:
+                    $message   = 'A value of a type that cannot be encoded was given';
+                    $code = 208;
                     break;
             }
 
