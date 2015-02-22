@@ -170,7 +170,7 @@ class JSON
         // On encapsule dans un array pour utiliser array_walk_recursive
         if (!is_array($value)) {
             $isArray = false;
-            $value = array($value);
+            $value   = array($value);
         }
 
         array_walk_recursive($value, function (&$v) use ($encode) {
@@ -190,7 +190,24 @@ class JSON
             $value = $value[0];
         }
 
-        return json_encode($value, $options & ~static::AS_ARRAY & ~static::UTF8_ENCODE);
+        $encoded = json_encode($value, $options & ~static::AS_ARRAY & ~static::UTF8_ENCODE);
+
+        if (false === $encoded) {
+            $message   = json_last_error_msg();
+            $exception = 'Exception';
+            $code      = 1;
+
+            switch (json_last_error()) {
+                case JSON_ERROR_UTF8:
+                    $exception = __NAMESPACE__ . '\Exception\MalformedCharactersException';
+                    $code = 205;
+                    break;
+            }
+
+            throw new $exception($message, $code);
+        }
+
+        return $encoded;
     }
 
     /**
@@ -222,10 +239,16 @@ class JSON
     public static function decode($json, $options = 0, $assoc = false)
     {
         if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
-            return json_decode($json, ($options & static::AS_ARRAY) || $assoc, 512, $options & ~static::AS_ARRAY);
+            $decoded = json_decode($json, ($options & static::AS_ARRAY) || $assoc, 512, $options & ~static::AS_ARRAY);
         } else {
-            return json_decode($json, ($options & static::AS_ARRAY) || $assoc, 128);
+            $decoded = json_decode($json, ($options & static::AS_ARRAY) || $assoc, 128);
         }
+
+        if (false === $decoded && 'false' !== $json) {
+            throw new \Exception(json_last_error_msg());
+        }
+
+        return $decoded;
     }
 
     /**
