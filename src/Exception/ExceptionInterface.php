@@ -9,10 +9,9 @@
 namespace Tiross\json\Exception;
 
 /**
- * File not found exception
- *
+ * ExceptionInterface
  * @author Tiross
  */
-class FileNotFoundException extends \InvalidArgumentException implements ExceptionInterface
+interface ExceptionInterface
 {
 }

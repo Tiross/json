@@ -11,6 +11,7 @@ class FileNotFoundException extends \atoum\test
         $this
             ->class('\Tiross\json\Exception\FileNotFoundException')
                 ->isSubclassOf('\InvalidArgumentException')
+                ->implements('\Tiross\json\Exception\ExceptionInterface')
         ;
     }
 }
