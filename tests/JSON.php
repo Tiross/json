@@ -221,6 +221,17 @@ class JSON extends \atoum\test
         ;
     }
 
+    public function testEncodeNonUTF8()
+    {
+        $this
+            ->exception(function () {
+                testedClass::encode("\xB1\x31");
+            })
+                ->isInstanceOf('\Tiross\json\Exception\MalformedCharactersException')
+                ->hasCode(205)
+                ->hasMessage('Malformed UTF-8 characters, possibly incorrectly encoded')
+        ;
+    }
 
     public function constantProvider()
     {
