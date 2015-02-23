@@ -221,6 +221,7 @@ class JSON extends \atoum\test
         ;
     }
 
+    /** @php 5.5 */
     public function testEncodeNonUTF8()
     {
         $this
