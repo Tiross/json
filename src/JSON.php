@@ -177,6 +177,7 @@ class JSON
      * @param  mixed   $value   The value being encoded.
      * @param  integer $options Bitmask using class constants
      * @return string           Returns a JSON encoded string
+     * @throws Tiross\json\Exception\MalformedCharactersException If the value is not in UTF8 (only on PHP >= 5.5)
      */
     public static function encode($value, $options = 0)
     {
