@@ -42,6 +42,7 @@ class JSON extends \atoum\test
         ;
     }
 
+    /** @php 5.4 */
     public function testEncodeJsonisableObject()
     {
         $this
@@ -52,6 +53,7 @@ class JSON extends \atoum\test
         ;
     }
 
+    /** @php 5.4 */
     public function testEncodeResolutionOrder()
     {
         $this
