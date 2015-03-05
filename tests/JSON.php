@@ -21,24 +21,53 @@ class JSON extends \atoum\test
         ;
     }
 
+    public function test__construct()
+    {
+        $this
+            ->integer($this->newTestedInstance->getOptions())
+                ->isZero
+            ->integer($this->testedInstance->getDepth())
+                ->isEqualTo(512)
+        ;
+    }
+
     /**
      * @dataProvider encodeProvider
      */
-    public function testEncode($value, $options)
+    public function testEncode($value, $options, $method)
     {
         $this
-            ->string(testedClass::encode($value, $options))
-                ->isIdenticalTo(json_encode($value, $options))
+            ->if($this->newTestedInstance)
+            ->and($this->function->json_encode = $encoded = uniqid())
+            ->then
+                ->assert
+                    ->string($this->testedInstance->encode($value, $options))
+                        ->isIdenticalTo($encoded)
+                    ->function('json_encode')
+                        ->wasCalledWithIdenticalArguments($value, $options)
+                            ->once
+
+                ->assert
+                    ->string($this->testedInstance->$method(true)->encode($value))
+                        ->isIdenticalTo($encoded)
+                    ->function('json_encode')
+                        ->wasCalledWithIdenticalArguments($value, $options)
+                            ->once
         ;
     }
 
     public function testEncodeObjectCastedToString()
     {
         $this
+            ->given($this->newTestedInstance)
+            ->and($this->function->json_encode = $encoded = uniqid())
             ->if($obj = new TestObjectCastedToString)
             ->then
-                ->string(testedClass::encode($obj))
-                    ->isIdenticalTo(json_encode((string) $obj))
+                ->string($this->testedInstance->encode($obj))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments((string) $obj)
+                        ->once
         ;
     }
 
@@ -46,9 +75,10 @@ class JSON extends \atoum\test
     public function testEncodeJsonisableObject()
     {
         $this
+            ->given($this->newTestedInstance)
             ->if($obj = new TestObjectJsonCompatible)
             ->then
-                ->string(testedClass::encode($obj))
+                ->string($this->testedInstance->encode($obj))
                     ->isIdenticalTo(json_encode($obj))
         ;
     }
@@ -57,9 +87,10 @@ class JSON extends \atoum\test
     public function testEncodeResolutionOrder()
     {
         $this
+            ->given($this->newTestedInstance)
             ->if($obj = new TestObjectBoth)
             ->then
-                ->string(testedClass::encode($obj))
+                ->string($this->testedInstance->encode($obj))
                     ->isIdenticalTo(json_encode($obj))
                     ->isNotIdenticalTo(json_encode((string) $obj))
         ;
@@ -68,25 +99,26 @@ class JSON extends \atoum\test
     public function testEncodeInUTF()
     {
         $this
+            ->given($this->newTestedInstance)
             ->if($this->function->utf8_encode = $utf8 = uniqid())
             ->then
 
                 ->assert('with string')
-                    ->string(testedClass::encode($text = uniqid(), testedClass::UTF8_ENCODE))
+                    ->string($this->testedInstance->encode($text = uniqid(), testedClass::UTF8_ENCODE))
                         ->isIdenticalTo(json_encode($utf8))
                     ->function('utf8_encode')
                         ->wasCalledWithIdenticalArguments($text)
                         ->once
 
                 ->assert('with casted to string object')
-                    ->string(testedClass::encode($obj = new TestObjectCastedToString, testedClass::UTF8_ENCODE))
+                    ->string($this->testedInstance->encode($obj = new TestObjectCastedToString, testedClass::UTF8_ENCODE))
                         ->isIdenticalTo(json_encode($utf8))
                     ->function('utf8_encode')
                         ->wasCalledWithIdenticalArguments((string) $obj)
                         ->once
 
                 ->assert('with JsonSerializable object')
-                    ->string(testedClass::encode($obj = new TestObjectJsonCompatible, testedClass::UTF8_ENCODE))
+                    ->string($this->testedInstance->encode($obj = new TestObjectJsonCompatible, testedClass::UTF8_ENCODE))
                         ->isIdenticalTo(json_encode($obj))
                     ->function('utf8_encode')
                         ->never
@@ -96,15 +128,16 @@ class JSON extends \atoum\test
     /**
      * @dataProvider encodeProvider
      */
-    public function testEncodeToFile($json, $options)
+    public function testEncodeToFile($json, $options, $method)
     {
         $this
+            ->given($this->newTestedInstance)
             ->if($this->function->file_put_contents = true)
             ->then
-                ->boolean(testedClass::encodeToFile($json, $file = uniqid(), $options))
+                ->boolean($this->testedInstance->encodeToFile($json, $file = uniqid(), $options))
                     ->isTrue
                 ->function('file_put_contents')
-                    ->wasCalledWithIdenticalArguments($file, testedClass::encode($json, $options))
+                    ->wasCalledWithIdenticalArguments($file, $this->testedInstance->encode($json, $options))
                     ->once
         ;
     }
@@ -113,30 +146,24 @@ class JSON extends \atoum\test
     public function testDecode()
     {
         $this
+            ->given($this->newTestedInstance)
             ->if($this->function->json_decode = $decoded = uniqid())
             ->and($defaultAssoc = false)
             ->and($defaultDepth = 512)
             ->and($defaultOptions = 0)
             ->then
                 ->assert('no options')
-                    ->string(testedClass::decode($json = uniqid()))
+                    ->string($this->testedInstance->decode($json = uniqid()))
                         ->isIdenticalTo($decoded)
                     ->function('json_decode')
                         ->wasCalledWithIdenticalArguments($json, $defaultAssoc, $defaultDepth, $defaultOptions)
                         ->once
 
                 ->assert('force associative with argument')
-                    ->string(testedClass::decode($json = uniqid(), $options = 0, $assoc = true))
+                    ->string($this->testedInstance->decode($json = uniqid(), $options = 0, $assoc = true))
                         ->isIdenticalTo($decoded)
                     ->function('json_decode')
                         ->wasCalledWithArguments($json, $assoc, $defaultDepth, $options)
-                        ->once
-
-                ->assert('force associative with options')
-                    ->string(testedClass::decode($json = uniqid(), $options = testedClass::AS_ARRAY))
-                        ->isIdenticalTo($decoded)
-                    ->function('json_decode')
-                        ->wasCalledWithIdenticalArguments($json, true, $defaultDepth, 0)
                         ->once
         ;
     }
@@ -145,29 +172,23 @@ class JSON extends \atoum\test
     public function testDecode53()
     {
         $this
+            ->given($this->newTestedInstance)
             ->if($this->function->json_decode = $decoded = uniqid())
             ->and($defaultAssoc = false)
             ->and($defaultDepth = 128)
             ->then
                 ->assert('no options')
-                    ->string(testedClass::decode($json = uniqid()))
+                    ->string($this->testedInstance->decode($json = uniqid()))
                         ->isIdenticalTo($decoded)
                     ->function('json_decode')
                         ->wasCalledWithIdenticalArguments($json, $defaultAssoc, $defaultDepth)
                         ->once
 
                 ->assert('force associative with argument')
-                    ->string(testedClass::decode($json = uniqid(), $options = 0, $assoc = true))
+                    ->string($this->testedInstance->decode($json = uniqid(), $options = 0, $assoc = true))
                         ->isIdenticalTo($decoded)
                     ->function('json_decode')
                         ->wasCalledWithArguments($json, $assoc, $defaultDepth)
-                        ->once
-
-                ->assert('force associative with options')
-                    ->string(testedClass::decode($json = uniqid(), $options = testedClass::AS_ARRAY))
-                        ->isIdenticalTo($decoded)
-                    ->function('json_decode')
-                        ->wasCalledWithIdenticalArguments($json, true, $defaultDepth)
                         ->once
         ;
     }
@@ -182,8 +203,10 @@ class JSON extends \atoum\test
         }
 
         $this
-            ->$type(testedClass::decodeToArray($value, $options))
-                ->isIdenticalTo(testedClass::decode($value, $options | testedClass::AS_ARRAY))
+            ->given($this->newTestedInstance)
+            ->then
+                ->$type($this->testedInstance->decodeToArray($value, $options))
+                    ->isIdenticalTo($this->testedInstance->decode($value, $options, true))
         ;
     }
 
@@ -193,8 +216,10 @@ class JSON extends \atoum\test
     public function testDecodeToObject($type, $value, $options)
     {
         $this
-            ->$type(testedClass::decodeToObject($value, $options))
-                ->isEqualTo(testedClass::decode($value, $options & ~testedClass::AS_ARRAY))
+            ->given($this->newTestedInstance)
+            ->then
+                ->$type($this->testedInstance->decodeToObject($value, $options))
+                    ->isEqualTo($this->testedInstance->decode($value, $options, false))
         ;
     }
 
@@ -203,10 +228,10 @@ class JSON extends \atoum\test
         $this
             ->given($this->function->is_file = true)
             ->and($this->function->file_get_contents = true)
-            ->if(testedClass::decodeFile($file = uniqid()))
+            ->if($this->newTestedInstance->decodeFile($file = uniqid()))
             ->then
                 ->function('is_file')
-                    ->wasCalled
+                    ->wasCalledWithIdenticalArguments($file)
                     ->once
                 ->function('file_get_contents')
                     ->wasCalledWithIdenticalArguments($file)
@@ -215,7 +240,7 @@ class JSON extends \atoum\test
             ->if($this->function->is_file = false)
             ->then
                 ->exception(function () use ($file) {
-                    testedClass::decodeFile($file);
+                    $this->newTestedInstance->decodeFile($file);
                 })
                     ->isInstanceOf('\Tiross\json\Exception\FileNotFoundException')
                     ->hasCode(101)
@@ -228,7 +253,7 @@ class JSON extends \atoum\test
     {
         $this
             ->exception(function () {
-                testedClass::encode("\xB1\x31");
+                $this->newTestedInstance->encode("\xB1\x31");
             })
                 ->isInstanceOf('\Tiross\json\Exception\MalformedCharactersException')
                 ->hasCode(205)
@@ -264,22 +289,22 @@ class JSON extends \atoum\test
     public function encodeProvider()
     {
         $php53 = array(
-            array('test', 0),
-            array(array(1, 2), 0),
-            array(array('foo', 'bar'), 0),
-            array('<test>', testedClass::HEX_TAG),
-            array('&nbsp;', testedClass::HEX_AMP),
-            array('"\'', testedClass::HEX_QUOT),
-            array('"\'', testedClass::HEX_APOS),
-            array('123', testedClass::NUMERIC_CHECK),
+            array('test', 0, ''),
+            array(array(1, 2), 0, ''),
+            array(array('foo', 'bar'), 0, ''),
+            array('<test>', testedClass::HEX_TAG, 'hexTag'),
+            array('&nbsp;', testedClass::HEX_AMP, 'hexAmp'),
+            array('"\'', testedClass::HEX_QUOT, 'hexQuot'),
+            array('"\'', testedClass::HEX_APOS, 'hexApos'),
+            array('123', testedClass::NUMERIC_CHECK, 'numericCheck'),
         );
 
         $php54 = array(
-            array('1234567890', testedClass::BIGINT_AS_STRING),
-            array(array(1, 2), testedClass::FORCE_OBJECT),
-            array(' /!\\ ', testedClass::UNESCAPED_SLASHES),
-            array('\u00e9', testedClass::UNESCAPED_UNICODE),
-            array(array('foo', 'bar'), testedClass::PRETTY_PRINT),
+            array(PHP_INT_MAX, testedClass::BIGINT_AS_STRING, 'bigintAsString'),
+            array(array(1, 2), testedClass::FORCE_OBJECT, 'forceObject'),
+            array(' /!\\ ', testedClass::UNESCAPED_SLASHES, 'unescapedSlashes'),
+            array('\u00e9', testedClass::UNESCAPED_UNICODE, 'unescapedUnicode'),
+            array(array('foo', 'bar'), testedClass::PRETTY_PRINT, 'prettyPrint'),
         );
 
         if (version_compare(phpversion(), '5.4.0', '>=')) {
