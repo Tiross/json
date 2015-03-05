@@ -196,7 +196,7 @@ class JSON
 
     public function setOptions($options)
     {
-        $this->options = $options | ~static::UTF8_ENCODE;
+        $this->options = $options & ~static::UTF8_ENCODE;
         $this->convertToUtf8($options & static::UTF8_ENCODE);
 
         return $this;

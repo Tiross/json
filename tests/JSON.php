@@ -64,11 +64,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::HEX_TAG)
             ->then
                 ->object($this->testedInstance->hexTag(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::HEX_TAG)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->hexTag(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 
@@ -76,11 +78,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::HEX_AMP)
             ->then
                 ->object($this->testedInstance->hexAmp(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::HEX_AMP)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->hexAmp(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 
@@ -88,11 +92,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::HEX_QUOT)
             ->then
                 ->object($this->testedInstance->hexQuot(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::HEX_QUOT)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->hexQuot(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 
@@ -100,11 +106,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::HEX_APOS)
             ->then
                 ->object($this->testedInstance->hexApos(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::HEX_APOS)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->hexApos(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 
@@ -112,11 +120,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::NUMERIC_CHECK)
             ->then
                 ->object($this->testedInstance->numericCheck(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::NUMERIC_CHECK)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->numericCheck(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 
@@ -124,11 +134,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::PRETTY_PRINT)
             ->then
                 ->object($this->testedInstance->prettyPrint(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::PRETTY_PRINT)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->prettyPrint(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 
@@ -136,11 +148,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::UNESCAPED_UNICODE)
             ->then
                 ->object($this->testedInstance->unescapedUnicode(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::UNESCAPED_UNICODE)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->unescapedUnicode(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 
@@ -148,11 +162,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::UNESCAPED_SLASHES)
             ->then
                 ->object($this->testedInstance->unescapedSlashes(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::UNESCAPED_SLASHES)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->unescapedSlashes(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 
@@ -160,11 +176,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::FORCE_OBJECT)
             ->then
                 ->object($this->testedInstance->forceObject(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::FORCE_OBJECT)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->forceObject(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 
@@ -172,11 +190,13 @@ class JSON extends \atoum\test
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($constant = testedClass::BIGINT_AS_STRING)
             ->then
                 ->object($this->testedInstance->bigintAsString(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::BIGINT_AS_STRING)
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo($constant)
                 ->object($this->testedInstance->bigintAsString(false))->isTestedInstance
                 ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+                ->integer($this->testedInstance->setOptions($constant)->getOptions())->isIdenticalTo($constant)
         ;
     }
 /*
