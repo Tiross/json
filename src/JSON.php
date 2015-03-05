@@ -197,7 +197,7 @@ class JSON
     public function setOptions($options)
     {
         $this->options = $options | ~static::UTF8_ENCODE;
-        $this->utf8Encode = $options & static::UTF8_ENCODE;
+        $this->convertToUtf8($options & static::UTF8_ENCODE);
 
         return $this;
     }
@@ -282,7 +282,7 @@ class JSON
             $value = $value[0];
         }
 
-        $encoded = json_encode($value, $opts & ~static::UTF8_ENCODE);
+        $encoded = json_encode($value, $opts & ~static::UTF8_ENCODE, $this->getDepth());
 
         if (false === $encoded) {
             $this->throwException(json_last_error());

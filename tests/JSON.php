@@ -27,10 +27,185 @@ class JSON extends \atoum\test
             ->integer($this->newTestedInstance->getOptions())
                 ->isZero
             ->integer($this->testedInstance->getDepth())
-                ->isEqualTo(512)
+                ->IsIdenticalTo(512)
         ;
     }
 
+    public function testSetDefaults()
+    {
+        $this
+            ->if($this->newTestedInstance->setOptions(rand(0, PHP_INT_MAX))->setDepth(0))
+            ->then
+                ->object($this->testedInstance->setDefaults())
+                    ->isTestedInstance
+
+                ->integer($this->testedInstance->getOptions())
+                    ->isZero
+
+                ->integer($this->testedInstance->getDepth())
+                    ->IsIdenticalTo(512)
+        ;
+    }
+
+    public function testDepth()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->setDepth($opts = rand(0, PHP_INT_MAX)))
+                    ->isTestedInstance
+
+                ->integer($this->testedInstance->getDepth())
+                    ->IsIdenticalTo($opts)
+        ;
+    }
+
+    public function testHexTag()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->hexTag(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::HEX_TAG)
+                ->object($this->testedInstance->hexTag(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+
+    public function testHexAmp()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->hexAmp(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::HEX_AMP)
+                ->object($this->testedInstance->hexAmp(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+
+    public function testHexQuot()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->hexQuot(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::HEX_QUOT)
+                ->object($this->testedInstance->hexQuot(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+
+    public function testHexApos()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->hexApos(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::HEX_APOS)
+                ->object($this->testedInstance->hexApos(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+
+    public function testNumericCheck()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->numericCheck(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::NUMERIC_CHECK)
+                ->object($this->testedInstance->numericCheck(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+
+    public function testPrettyPrint()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->prettyPrint(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::PRETTY_PRINT)
+                ->object($this->testedInstance->prettyPrint(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+
+    public function testUnescapedUnicode()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->unescapedUnicode(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::UNESCAPED_UNICODE)
+                ->object($this->testedInstance->unescapedUnicode(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+
+    public function testUnescapedSlashes()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->unescapedSlashes(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::UNESCAPED_SLASHES)
+                ->object($this->testedInstance->unescapedSlashes(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+
+    public function testForceObject()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->forceObject(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::FORCE_OBJECT)
+                ->object($this->testedInstance->forceObject(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+
+    public function testBigintAsString()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->bigintAsString(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::BIGINT_AS_STRING)
+                ->object($this->testedInstance->bigintAsString(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+/*
+    public function testConvertToUtf8()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->convertToUtf8(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(testedClass::BIGINT_AS_STRING)
+                ->object($this->testedInstance->convertToUtf8(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsIdenticalTo(0)
+        ;
+    }
+/*
+    public function testOptions()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->setOptions($opts = rand(0, PHP_INT_MAX)))
+                    ->isTestedInstance
+
+                ->integer($this->testedInstance->getOptions())
+                    ->IsIdenticalTo($opts)
+
+        ;
+    }
+*/
     /**
      * @dataProvider encodeProvider
      */
@@ -39,19 +214,20 @@ class JSON extends \atoum\test
         $this
             ->if($this->newTestedInstance)
             ->and($this->function->json_encode = $encoded = uniqid())
+            ->and($depth = $this->testedInstance->getDepth())
             ->then
                 ->assert
                     ->string($this->testedInstance->encode($value, $options))
                         ->isIdenticalTo($encoded)
                     ->function('json_encode')
-                        ->wasCalledWithIdenticalArguments($value, $options)
+                        ->wasCalledWithIdenticalArguments($value, $options, $depth)
                             ->once
 
                 ->assert
                     ->string($this->testedInstance->$method(true)->encode($value))
                         ->isIdenticalTo($encoded)
                     ->function('json_encode')
-                        ->wasCalledWithIdenticalArguments($value, $options)
+                        ->wasCalledWithIdenticalArguments($value, $options, $depth)
                             ->once
         ;
     }
@@ -61,12 +237,16 @@ class JSON extends \atoum\test
         $this
             ->given($this->newTestedInstance)
             ->and($this->function->json_encode = $encoded = uniqid())
+            ->and($options = $this->testedInstance->getOptions())
+            ->and($depth = $this->testedInstance->getDepth())
+
             ->if($obj = new TestObjectCastedToString)
             ->then
                 ->string($this->testedInstance->encode($obj))
                     ->isIdenticalTo($encoded)
+
                 ->function('json_encode')
-                    ->wasCalledWithIdenticalArguments((string) $obj)
+                    ->wasCalledWithIdenticalArguments((string) $obj, $options, $depth)
                         ->once
         ;
     }
@@ -76,10 +256,18 @@ class JSON extends \atoum\test
     {
         $this
             ->given($this->newTestedInstance)
+            ->and($options = $this->testedInstance->getOptions())
+            ->and($depth = $this->testedInstance->getDepth())
+            ->and($this->function->json_encode = $encoded = uniqid())
+
             ->if($obj = new TestObjectJsonCompatible)
             ->then
                 ->string($this->testedInstance->encode($obj))
-                    ->isIdenticalTo(json_encode($obj))
+                    ->isIdenticalTo($encoded)
+
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($obj, $options, $depth)
+                        ->once
         ;
     }
 
@@ -88,11 +276,18 @@ class JSON extends \atoum\test
     {
         $this
             ->given($this->newTestedInstance)
+            ->and($options = $this->testedInstance->getOptions())
+            ->and($depth = $this->testedInstance->getDepth())
+            ->and($this->function->json_encode = $encoded = uniqid())
+
             ->if($obj = new TestObjectBoth)
             ->then
                 ->string($this->testedInstance->encode($obj))
-                    ->isIdenticalTo(json_encode($obj))
-                    ->isNotIdenticalTo(json_encode((string) $obj))
+                    ->isIdenticalTo($encoded)
+
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($obj, $options, $depth)
+                        ->once
         ;
     }
 
@@ -297,6 +492,9 @@ class JSON extends \atoum\test
             array('"\'', testedClass::HEX_QUOT, 'hexQuot'),
             array('"\'', testedClass::HEX_APOS, 'hexApos'),
             array('123', testedClass::NUMERIC_CHECK, 'numericCheck'),
+            array(true, 0, ''),
+            array(null, 0, ''),
+            array(false, 0, ''),
         );
 
         $php54 = array(
@@ -349,8 +547,8 @@ class JSON extends \atoum\test
 
 class TestObjectCastedToString
 {
-    protected $a = 'Transtyped OK';
-    protected $b = 'Transtyped NOK';
+    public $a = 'Transtyped OK';
+    public $b = 'Transtyped NOK';
 
     public function __toString()
     {
@@ -360,8 +558,8 @@ class TestObjectCastedToString
 
 class TestObjectJsonCompatible implements \JsonSerializable
 {
-    protected $c = 'Serializable OK';
-    protected $d = 'Serializable NOK';
+    public $c = 'Serializable OK';
+    public $d = 'Serializable NOK';
 
     public function jsonSerialize()
     {
@@ -371,10 +569,10 @@ class TestObjectJsonCompatible implements \JsonSerializable
 
 class TestObjectBoth implements \JsonSerializable
 {
-    protected $a = 'Transtyped OK';
-    protected $b = 'Transtyped NOK';
-    protected $c = 'Serializable OK';
-    protected $d = 'Serializable NOK';
+    public $a = 'Transtyped OK';
+    public $b = 'Transtyped NOK';
+    public $c = 'Serializable OK';
+    public $d = 'Serializable NOK';
 
     public function __toString()
     {
