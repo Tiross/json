@@ -282,7 +282,11 @@ class JSON
             $value = $value[0];
         }
 
-        $encoded = json_encode($value, $opts & ~static::UTF8_ENCODE, $this->getDepth());
+        if (version_compare(PHP_VERSION, '5.5.0', '>=')) {
+            $encoded = json_encode($value, $opts & ~static::UTF8_ENCODE, $this->getDepth());
+        } else {
+            $encoded = json_encode($value, $opts & ~static::UTF8_ENCODE);
+        }
 
         if (false === $encoded) {
             $this->throwException(json_last_error());

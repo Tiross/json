@@ -208,8 +208,9 @@ class JSON extends \atoum\test
 */
     /**
      * @dataProvider encodeProvider
+     * @php 5.5
      */
-    public function testEncode($value, $options, $method)
+    public function testEncode55($value, $options, $method)
     {
         $this
             ->if($this->newTestedInstance)
@@ -228,6 +229,32 @@ class JSON extends \atoum\test
                         ->isIdenticalTo($encoded)
                     ->function('json_encode')
                         ->wasCalledWithIdenticalArguments($value, $options, $depth)
+                            ->once
+        ;
+    }
+
+    /**
+     * @dataProvider encodeProvider
+     * @php < 5.5
+     */
+    public function testEncode($value, $options, $method)
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->and($this->function->json_encode = $encoded = uniqid())
+            ->then
+                ->assert
+                    ->string($this->testedInstance->encode($value, $options))
+                        ->isIdenticalTo($encoded)
+                    ->function('json_encode')
+                        ->wasCalledWithIdenticalArguments($value, $options)
+                            ->once
+
+                ->assert
+                    ->string($this->testedInstance->$method(true)->encode($value))
+                        ->isIdenticalTo($encoded)
+                    ->function('json_encode')
+                        ->wasCalledWithIdenticalArguments($value, $options)
                             ->once
         ;
     }
