@@ -230,7 +230,7 @@ class JSON extends \atoum\test
      * @dataProvider encodeProvider
      * @php 5.5
      */
-    public function testEncode55($value, $options, $method)
+    public function testEncode($value, $options, $method)
     {
         $this
             ->if($this->newTestedInstance)
@@ -257,7 +257,7 @@ class JSON extends \atoum\test
      * @dataProvider encodeProvider
      * @php < 5.5
      */
-    public function testEncode($value, $options, $method)
+    public function testEncodeBefore55($value, $options, $method)
     {
         $this
             ->if($this->newTestedInstance)
@@ -411,7 +411,7 @@ class JSON extends \atoum\test
     }
 
     /** @php < 5.4 */
-    public function testDecode53()
+    public function testDecodeBefore54()
     {
         $this
             ->given($this->newTestedInstance)
