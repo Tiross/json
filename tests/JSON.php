@@ -13,11 +13,11 @@ class JSON extends \atoum\test
     /**
      * @dataProvider constantProvider
      */
-    public function testConstant($suffixe)
+    public function testConstant($suffix)
     {
         $this
-            ->integer(constant('\Tiross\json\JSON::' . $suffixe))
-                ->isIdenticalTo(constant('JSON_' . $suffixe))
+            ->integer(constant('\Tiross\json\JSON::' . $suffix))
+                ->isIdenticalTo(constant('JSON_' . $suffix))
         ;
     }
 
