@@ -14,12 +14,4 @@ class MalformedCharactersException extends \atoum\test
                 ->implements('\Tiross\json\Exception\ExceptionInterface')
         ;
     }
-
-    public function test__construct()
-    {
-        $this
-            ->object($this->newTestedInstance)
-                ->isInstanceOfTestedClass
-        ;
-    }
 }
