@@ -19,3 +19,6 @@ before_script:
 script: ./vendor/bin/atoum
 after_script:
   - php vendor/bin/coveralls -v
+addons:
+  code_climate:
+    repo_token: a3c68ffc5291836ac8c7e821b34509fb548701be202fe2cd18f73d886be68c76
