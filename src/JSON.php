@@ -255,6 +255,8 @@ class JSON
     public function __get($property)
     {
         switch (strtolower($property)) {
+            case 'setdefaults':
+            case 'getoptions':
             case 'converttoutf8':
                 return $this->$property();
         }

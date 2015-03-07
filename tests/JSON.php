@@ -44,6 +44,16 @@ class JSON extends \atoum\test
 
                 ->integer($this->testedInstance->getDepth())
                     ->IsIdenticalTo(512)
+
+            ->if($this->newTestedInstance->setOptions(rand(0, PHP_INT_MAX))->setDepth(0))
+            ->then
+                ->object($this->testedInstance->setDefaults)->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->isZero
+
+            ->if($this->newTestedInstance->setOptions(rand(0, PHP_INT_MAX))->setDepth(0))
+            ->then
+                ->object($this->testedInstance->SETDEFAULTS)->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->isZero
         ;
     }
 
@@ -212,12 +222,20 @@ class JSON extends \atoum\test
                     ->isTestedInstance
                 ->integer($this->testedInstance->getOptions())
                     ->IsIdenticalTo($optionWithConvertEncoding)
+                ->integer($this->testedInstance->getOptions)
+                    ->IsIdenticalTo($optionWithConvertEncoding)
+                ->integer($this->testedInstance->GETOPTIONS)
+                    ->IsIdenticalTo($optionWithConvertEncoding)
                 ->boolean($this->testedInstance->convertToUtf8())
                     ->isTrue
 
                 ->object($this->testedInstance->setOptions($optionWithoutConvertEncoding))
                     ->isTestedInstance
                 ->integer($this->testedInstance->getOptions())
+                    ->IsIdenticalTo($optionWithoutConvertEncoding)
+                ->integer($this->testedInstance->getOptions)
+                    ->IsIdenticalTo($optionWithoutConvertEncoding)
+                ->integer($this->testedInstance->GETOPTIONS)
                     ->IsIdenticalTo($optionWithoutConvertEncoding)
                 ->boolean($this->testedInstance->convertToUtf8())
                     ->isFalse
