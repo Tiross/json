@@ -610,22 +610,18 @@ class JSON extends \atoum\test
         ;
     }
 
-    /**
-     * @dataProvider encodeProvider
-     */
-    public function testEncodeToFile($json, $options, $method)
+    public function testEncodeToFile()
     {
-        return;
         $this
             ->given($this->newTestedInstance)
             ->if($this->function->file_put_contents = true)
             ->then
-                ->string($this->testedInstance->encodeToFile($json, $file = uniqid(), $options))
+                ->boolean($this->testedInstance->encodeToFile($value = uniqid(), $file = uniqid()))
                     ->isTrue
 
                 ->function('file_put_contents')
-                    ->wasCalledWithIdenticalArguments($file, $this->testedInstance->encode($json, $options))
-                    ->once
+                    ->wasCalledWithIdenticalArguments($file, $this->testedInstance->encode($value))
+                        ->once
         ;
     }
 
