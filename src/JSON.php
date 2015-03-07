@@ -154,7 +154,7 @@ class JSON
      * Force encoding to UTF8.
      * @var integer
      */
-    const UTF8_ENCODE = 2048;
+    const UTF8_ENCODE = 1048576; // pow(2, 20)
 
     /**
      * Options passed to instance
