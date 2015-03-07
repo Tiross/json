@@ -277,58 +277,106 @@ class JSON extends \atoum\test
         ;
     }
 
-    /**
-     * @dataProvider encodeProvider
-     * @php 5.5
-     */
-    public function testEncode($value, $options, $method)
+    /** @php 5.5 */
+    public function testEncode()
     {
-        return;
         $this
-            ->if($this->newTestedInstance)
-            ->and($this->function->json_encode = $encoded = uniqid())
-            ->and($depth = $this->testedInstance->getDepth())
-            ->then
-                ->assert
-                    ->string($this->testedInstance->encode($value, $options))
-                        ->isIdenticalTo($encoded)
-                    ->function('json_encode')
-                        ->wasCalledWithIdenticalArguments($value, $options, $depth)
-                            ->once
+            ->given($this->function->json_encode = $encoded = uniqid())
+            ->and($this->function->utf8_encode = $utf8 = uniqid())
+            ->and($value = uniqid())
 
-                ->assert
-                    ->string($this->testedInstance->$method(true)->encode($value))
-                        ->isIdenticalTo($encoded)
-                    ->function('json_encode')
-                        ->wasCalledWithIdenticalArguments($value, $options, $depth)
-                            ->once
+            ->if($this->newTestedInstance)
+            ->and($options = $this->testedInstance->setOptions(rand(0, PHP_INT_MAX))->convertToUtf8(false)->getOptions)
+
+            ->and($depth = $this->testedInstance->setDefaults->getDepth())
+
+            ->assert('no options, no utf8 encode')
+                ->string($this->testedInstance->encode($value))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, 0, $depth)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+
+            ->assert('options as method argument, no utf8 encode')
+                ->string($this->testedInstance->encode($value, $options))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, $options, $depth)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+
+            ->assert('options as instance property, no utf8 encode')
+                ->string($this->testedInstance->setOptions($options)->encode($value))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, $options, $depth)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+
+            ->assert('options as method argument, utf8 option too')
+                ->string($this->testedInstance->encode($value, $options | testedClass::UTF8_ENCODE))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($utf8, $options, $depth)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalledWithIdenticalArguments($value)
+                        ->once
+
+            ->assert('options as instance property, utf8 as option')
+                ->string($this->testedInstance->setOptions($options)->encode($value, testedClass::UTF8_ENCODE))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($utf8, $options, $depth)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalledWithIdenticalArguments($value)
+                        ->once
+
+            ->assert('options and utf8 parameter as instance property')
+                ->string($this->testedInstance->setOptions($options)->convertToUtf8(true)->encode($value))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($utf8, $options, $depth)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalledWithIdenticalArguments($value)
+                        ->once
         ;
     }
 
-    /**
-     * @dataProvider encodeProvider
-     * @php < 5.5
-     */
-    public function testEncodeBefore55($value, $options, $method)
+    /** @php < 5.5 */
+    public function testEncodeBefore55()
     {
-        return;
         $this
-            ->if($this->newTestedInstance)
-            ->and($this->function->json_encode = $encoded = uniqid())
-            ->then
-                ->assert
-                    ->string($this->testedInstance->encode($value, $options))
-                        ->isIdenticalTo($encoded)
-                    ->function('json_encode')
-                        ->wasCalledWithIdenticalArguments($value, $options)
-                            ->once
+            ->given($this->function->json_encode = $encoded = uniqid())
+            ->and($this->function->utf8_encode = $utf8 = uniqid())
+            ->and($value = uniqid())
 
-                ->assert
-                    ->string($this->testedInstance->$method(true)->encode($value))
-                        ->isIdenticalTo($encoded)
-                    ->function('json_encode')
-                        ->wasCalledWithIdenticalArguments($value, $options)
-                            ->once
+            ->if($this->newTestedInstance)
+            ->and($options = $this->testedInstance->setOptions(rand(0, PHP_INT_MAX))->convertToUtf8(false)->getOptions)
+
+            ->assert('options as method argument, no utf8 encode')
+                ->string($this->testedInstance->encode($value, $options))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, $options)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+
+            ->assert('options as instance property, no utf8 encode')
+                ->string($this->testedInstance->setOptions($options)->encode($value))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, $options)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
         ;
     }
 
