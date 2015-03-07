@@ -154,20 +154,114 @@ class JSON
      * Force encoding to UTF8.
      * @var integer
      */
-    const UTF8_ENCODE = 2048;
+    const UTF8_ENCODE = 1048576; // pow(2, 20)
 
     /**
-     * When used, returned objects will be converted into associative arrays..
+     * Options passed to instance
      * @var integer
      */
-    const AS_ARRAY = 1024;
+    protected $options = 0;
 
     /**
-     * This class does not admit instance.
-     * @ignore
+     * Do we want to re-encode values in UTF8
+     * @var boolean
      */
-    private function __construct()
+    protected $utf8Encode = false;
+
+    /**
+     * Maximum depth
+     * @var integer
+     */
+    protected $maxDepth = 0;
+
+    /**
+     * Create a new instance of json
+     */
+    public function __construct()
     {
+        $this->setDefaults();
+    }
+
+    /**
+     * Define defaults options
+     */
+    public function setDefaults()
+    {
+        $this->options = 0;
+        $this->utf8Encode = false;
+        $this->maxDepth = 512;
+
+        return $this;
+    }
+
+    public function setOptions($options)
+    {
+        $this->options = $options & ~static::UTF8_ENCODE;
+        $this->convertToUtf8($options & static::UTF8_ENCODE);
+
+        return $this;
+    }
+
+    public function getOptions()
+    {
+        if ($this->utf8Encode) {
+            return $this->options | static::UTF8_ENCODE;
+        }
+
+        return $this->options;
+    }
+
+    public function convertToUtf8($mode = null)
+    {
+        if (is_null($mode)) {
+            return $this->utf8Encode;
+        }
+
+        $this->utf8Encode = !!$mode;
+
+        return $this;
+    }
+
+    public function setDepth($depth)
+    {
+        $this->maxDepth = (int) $depth;
+
+        return $this;
+    }
+
+    public function getDepth()
+    {
+        return $this->maxDepth;
+    }
+
+    public function __call($method, $args)
+    {
+        $add = !!$args[0];
+
+        $constant = preg_replace('`([A-Z])`', '_$1', $method);
+        $constant = '\Tiross\json\JSON::' . strtoupper($constant);
+
+        if (defined($constant)) {
+            if ($add) {
+                $this->options |= constant($constant);
+            } else {
+                $this->options &= ~constant($constant);
+            }
+        }
+
+        return $this;
+    }
+
+    public function __get($property)
+    {
+        switch (strtolower($property)) {
+            case 'setdefaults':
+            case 'getoptions':
+            case 'converttoutf8':
+                return $this->$property();
+        }
+
+        return $this;
     }
 
     /**
@@ -179,9 +273,10 @@ class JSON
      * @return string           Returns a JSON encoded string
      * @throws Tiross\json\Exception\MalformedCharactersException If the value is not in UTF8 (only on PHP >= 5.5)
      */
-    public static function encode($value, $options = 0)
+    public function encode($value, $options = 0)
     {
-        $encode  = $options & static::UTF8_ENCODE;
+        $opts    = $this->getOptions() | $options;
+        $encode  = $opts & static::UTF8_ENCODE;
         $isArray = true;
 
         // On encapsule dans un array pour utiliser array_walk_recursive
@@ -207,56 +302,14 @@ class JSON
             $value = $value[0];
         }
 
-        $encoded = json_encode($value, $options & ~static::AS_ARRAY & ~static::UTF8_ENCODE);
+        if (version_compare(PHP_VERSION, '5.5.0', '>=')) {
+            $encoded = json_encode($value, $opts & ~static::UTF8_ENCODE, $this->getDepth());
+        } else {
+            $encoded = json_encode($value, $opts & ~static::UTF8_ENCODE);
+        }
 
         if (false === $encoded) {
-            $exception = 'Exception';
-            $code      = 1;
-
-            switch (json_last_error()) {
-                case JSON_ERROR_DEPTH:
-                    $message   = 'The maximum stack depth has been exceeded';
-                    $code = 201;
-                    break;
-
-                case JSON_ERROR_STATE_MISMATCH:
-                    $message   = 'Invalid or malformed JSON';
-                    $code = 202;
-                    break;
-
-                case JSON_ERROR_CTRL_CHAR:
-                    $message   = 'Control character error, possibly incorrectly encoded';
-                    $code = 203;
-                    break;
-
-                case JSON_ERROR_SYNTAX:
-                    $message   = 'Syntax error, malformed JSON';
-                    $code = 204;
-                    break;
-
-                case JSON_ERROR_UTF8:
-                    $exception = __NAMESPACE__ . '\Exception\MalformedCharactersException';
-                    $message   = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-                    $code = 205;
-                    break;
-
-                case JSON_ERROR_RECURSION:
-                    $message   = 'One or more recursive references in the value to be encoded';
-                    $code = 206;
-                    break;
-
-                case JSON_ERROR_INF_OR_NAN:
-                    $message   = 'One or more NAN or INF values in the value to be encoded';
-                    $code = 207;
-                    break;
-
-                case JSON_ERROR_UNSUPPORTED_TYPE:
-                    $message   = 'A value of a type that cannot be encoded was given';
-                    $code = 208;
-                    break;
-            }
-
-            throw new $exception($message, $code);
+            $this->throwException(json_last_error());
         }
 
         return $encoded;
@@ -271,10 +324,11 @@ class JSON
      * @param  mixed   $value   The value being encoded.
      * @param  string  $file    Path to the file where to write the data.
      * @param  integer $options Bitmask using class constants.
+     * @return boolean
      */
-    public static function encodeToFile($json, $file, $options = 0)
+    public function encodeToFile($json, $file, $options = 0)
     {
-        return file_put_contents($file, JSON::encode($json, $options)) !== false;
+        return file_put_contents($file, $this->encode($json, $options)) !== false;
     }
 
 
@@ -288,16 +342,16 @@ class JSON
      * @param  boolean $assoc   When `TRUE`, returned objects will be converted into associative arrays.
      * @return mixed
      */
-    public static function decode($json, $options = 0, $assoc = false)
+    public function decode($json, $options = 0, $assoc = false)
     {
         if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
-            $decoded = json_decode($json, ($options & static::AS_ARRAY) || $assoc, 512, $options & ~static::AS_ARRAY);
+            $decoded = json_decode($json, $assoc, 512, $this->getOptions() | $options);
         } else {
-            $decoded = json_decode($json, ($options & static::AS_ARRAY) || $assoc, 128);
+            $decoded = json_decode($json, $assoc, 128);
         }
 
         if (false === $decoded && 'false' !== $json) {
-            throw new \Exception(json_last_error_msg());
+            $this->throwException(json_last_error());
         }
 
         return $decoded;
@@ -306,7 +360,7 @@ class JSON
     /**
      * Decodes a JSON string into associative array
      *
-     * This method is a shortcut for `JSON::decode($json, $options | static::AS_ARRAY)`.
+     * This method is a shortcut for `$this->decode($json, $options, true)`.
      *
      * @see JSON::decode() JSON::decode()
      * @param  string  $json    The json string being decoded.
@@ -314,15 +368,15 @@ class JSON
      *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
      * @return mixed
      */
-    public static function decodeToArray($json, $options = 0)
+    public function decodeToArray($json, $options = 0)
     {
-        return JSON::decode($json, $options | static::AS_ARRAY);
+        return $this->decode($json, $options, true);
     }
 
     /**
      * Decodes a JSON string into object
      *
-     * This method is a shortcut for `JSON::decode($json, $options & ~JSON::AS_ARRAY)`.
+     * This method is a shortcut for `$this->decode($json, $options, false)`.
      *
      * @see JSON::decode() JSON::decode()
      * @param  string  $json    The json string being decoded.
@@ -330,15 +384,15 @@ class JSON
      *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
      * @return mixed
      */
-    public static function decodeToObject($json, $options = 0)
+    public function decodeToObject($json, $options = 0)
     {
-        return JSON::decode($json, $options & ~static::AS_ARRAY);
+        return $this->decode($json, $options, false);
     }
 
     /**
      * Decodes a JSON string from file
      *
-     * This method is a shortcut for `JSON::decode($json, $options & ~JSON::AS_ARRAY)`.
+     * This method is a shortcut for `$this->decode(file_get_contents($file), $options)`.
      *
      * @see JSON::decode() JSON::decode()
      * @param  string  $file    Path to the file where to write the data.
@@ -347,12 +401,71 @@ class JSON
      * @throws Exception\FileNotFoundException Thrown when $file is not a file
      * @return mixed
      */
-    public static function decodeFile($file, $options = 0)
+    public function decodeFile($file, $options = 0)
     {
         if (!is_file($file)) {
             throw new Exception\FileNotFoundException(sprintf('File "%s" does not exist', $file), 101);
         }
 
-        return JSON::decode(file_get_contents($file), $options);
+        return $this->decode(file_get_contents($file), $options);
+    }
+
+    public function throwException($errorCode, $e = null)
+    {
+        $exception = 'Exception';
+        $message   = 'Undefined exception';
+        $code      = 1;
+
+        switch ($errorCode) {
+            case JSON_ERROR_DEPTH:
+                $exception = '\Tiross\json\Exception\MaximumDepthException';
+                $message   = 'The maximum stack depth has been exceeded';
+                $code = 201;
+                break;
+
+            case JSON_ERROR_STATE_MISMATCH:
+                $exception = '\Tiross\json\Exception\StateMismatchException';
+                $message   = 'Invalid or malformed JSON';
+                $code = 202;
+                break;
+
+            case JSON_ERROR_CTRL_CHAR:
+                $exception = '\Tiross\json\Exception\ControlCharactersException';
+                $message   = 'Control character error, possibly incorrectly encoded';
+                $code = 203;
+                break;
+
+            case JSON_ERROR_SYNTAX:
+                $exception = '\Tiross\json\Exception\SyntaxErrorException';
+                $message   = 'Syntax error, malformed JSON';
+                $code = 204;
+                break;
+
+            case JSON_ERROR_UTF8:
+                $exception = '\Tiross\json\Exception\MalformedCharactersException';
+                $message   = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+                $code = 205;
+                break;
+
+            case JSON_ERROR_RECURSION:
+                $exception = '\Tiross\json\Exception\RecursionException';
+                $message   = 'One or more recursive references in the value to be encoded';
+                $code = 206;
+                break;
+
+            case JSON_ERROR_INF_OR_NAN:
+                $exception = '\Tiross\json\Exception\InfiniteOrNotANumberException';
+                $message   = 'One or more NAN or INF values in the value to be encoded';
+                $code = 207;
+                break;
+
+            case JSON_ERROR_UNSUPPORTED_TYPE:
+                $exception = '\Tiross\json\Exception\UnsupportedTypeException';
+                $message   = 'A value of a type that cannot be encoded was given';
+                $code = 208;
+                break;
+        }
+
+        throw new $exception($message, $code, $e);
     }
 }
