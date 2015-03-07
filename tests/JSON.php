@@ -31,6 +31,18 @@ class JSON extends \atoum\test
         ;
     }
 
+    public function test__get()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->truc)
+                    ->isTestedInstance
+                ->object($this->testedInstance->bidule)
+                    ->isTestedInstance
+        ;
+    }
+
     public function testSetDefaults()
     {
         $this
