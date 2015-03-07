@@ -384,12 +384,12 @@ class JSON extends \atoum\test
     {
         $this
             ->given($this->function->json_encode = false)
-            ->and($this->newTestedInstance)
+            ->and($obj = $this->newTestedInstance)
 
             ->if($this->function->json_last_error = PHP_INT_MAX)
             ->then
-                ->exception(function () {
-                    $this->testedInstance->encode('');
+                ->exception(function () use ($obj) {
+                    $obj->encode('');
                 })
                     ->isInstanceOf('\Exception')
                     ->hasCode(1)
@@ -404,46 +404,46 @@ class JSON extends \atoum\test
     public function testThrowException()
     {
         $this
-            ->if($this->newTestedInstance)
+            ->if($obj = $this->newTestedInstance)
             ->and($exception = new \Exception)
             ->then
-                ->exception(function () {
-                    $this->testedInstance->throwException(JSON_ERROR_DEPTH);
+                ->exception(function () use ($obj) {
+                    $obj->throwException(JSON_ERROR_DEPTH);
                 })
                     ->isInstanceOf('\Tiross\json\Exception\MaximumDepthException')
                     ->hasCode(201)
                     ->hasMessage('The maximum stack depth has been exceeded')
 
-                ->exception(function () {
-                    $this->testedInstance->throwException(JSON_ERROR_STATE_MISMATCH);
+                ->exception(function () use ($obj) {
+                    $obj->throwException(JSON_ERROR_STATE_MISMATCH);
                 })
                     ->isInstanceOf('\Tiross\json\Exception\StateMismatchException')
                     ->hasCode(202)
                     ->hasMessage('Invalid or malformed JSON')
 
-                ->exception(function () {
-                    $this->testedInstance->throwException(JSON_ERROR_CTRL_CHAR);
+                ->exception(function () use ($obj) {
+                    $obj->throwException(JSON_ERROR_CTRL_CHAR);
                 })
                     ->isInstanceOf('\Tiross\json\Exception\ControlCharactersException')
                     ->hasCode(203)
                     ->hasMessage('Control character error, possibly incorrectly encoded')
 
-                ->exception(function () {
-                    $this->testedInstance->throwException(JSON_ERROR_SYNTAX);
+                ->exception(function () use ($obj) {
+                    $obj->throwException(JSON_ERROR_SYNTAX);
                 })
                     ->isInstanceOf('\Tiross\json\Exception\SyntaxErrorException')
                     ->hasCode(204)
                     ->hasMessage('Syntax error, malformed JSON')
 
-                ->exception(function () {
-                    $this->testedInstance->throwException(JSON_ERROR_UTF8);
+                ->exception(function () use ($obj) {
+                    $obj->throwException(JSON_ERROR_UTF8);
                 })
                     ->isInstanceOf('\Tiross\json\Exception\MalformedCharactersException')
                     ->hasCode(205)
                     ->hasMessage('Malformed UTF-8 characters, possibly incorrectly encoded')
 
-                ->exception(function () use ($exception) {
-                    $this->testedInstance->throwException(PHP_INT_MAX, $exception);
+                ->exception(function () use ($obj, $exception) {
+                    $obj->throwException(PHP_INT_MAX, $exception);
                 })
                     ->isInstanceOf('\Exception')
                     ->hasCode(1)
