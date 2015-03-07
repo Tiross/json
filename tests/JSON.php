@@ -380,6 +380,144 @@ class JSON extends \atoum\test
         ;
     }
 
+    public function testEncode_Exception()
+    {
+        $this
+            ->given($this->function->json_encode = false)
+            ->and($this->newTestedInstance)
+
+            ->if($this->function->json_last_error = PHP_INT_MAX)
+            ->then
+                ->exception(function () {
+                    $this->testedInstance->encode('');
+                })
+                    ->isInstanceOf('\Exception')
+                    ->hasCode(1)
+                    ->hasMessage('Undefined exception')
+
+                ->function('json_last_error')
+                    ->wasCalledWithoutAnyArgument()
+                        ->once
+        ;
+    }
+
+    public function testThrowException()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->and($exception = new \Exception)
+            ->then
+                ->exception(function () {
+                    $this->testedInstance->throwException(JSON_ERROR_DEPTH);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\MaximumDepthException')
+                    ->hasCode(201)
+                    ->hasMessage('The maximum stack depth has been exceeded')
+
+                ->exception(function () {
+                    $this->testedInstance->throwException(JSON_ERROR_STATE_MISMATCH);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\StateMismatchException')
+                    ->hasCode(202)
+                    ->hasMessage('Invalid or malformed JSON')
+
+                ->exception(function () {
+                    $this->testedInstance->throwException(JSON_ERROR_CTRL_CHAR);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\ControlCharactersException')
+                    ->hasCode(203)
+                    ->hasMessage('Control character error, possibly incorrectly encoded')
+
+                ->exception(function () {
+                    $this->testedInstance->throwException(JSON_ERROR_SYNTAX);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\SyntaxErrorException')
+                    ->hasCode(204)
+                    ->hasMessage('Syntax error, malformed JSON')
+
+                ->exception(function () {
+                    $this->testedInstance->throwException(JSON_ERROR_UTF8);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\MalformedCharactersException')
+                    ->hasCode(205)
+                    ->hasMessage('Malformed UTF-8 characters, possibly incorrectly encoded')
+
+                ->exception(function () use ($exception) {
+                    $this->testedInstance->throwException(PHP_INT_MAX, $exception);
+                })
+                    ->isInstanceOf('\Exception')
+                    ->hasCode(1)
+                    ->hasMessage('Undefined exception')
+                    ->hasNestedException($exception)
+        ;
+    }
+
+    /** @php 5.5 */
+    public function testThrowExceptionSince55()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->exception(function () {
+                    $this->testedInstance->throwException(JSON_ERROR_RECURSION);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\RecursionException')
+                    ->hasCode(206)
+                    ->hasMessage('One or more recursive references in the value to be encoded')
+
+                ->exception(function () {
+                    $this->testedInstance->throwException(JSON_ERROR_INF_OR_NAN);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\InfiniteOrNotANumberException')
+                    ->hasCode(207)
+                    ->hasMessage('One or more NAN or INF values in the value to be encoded')
+
+                ->exception(function () {
+                    $this->testedInstance->throwException(JSON_ERROR_UNSUPPORTED_TYPE);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\UnsupportedTypeException')
+                    ->hasCode(208)
+                    ->hasMessage('A value of a type that cannot be encoded was given')
+        ;
+    }
+
+    /** @php 5.5 */
+    public function testEncode_MalformedCharactersException()
+    {
+        $this
+            ->exception(function () {
+                $this->newTestedInstance->encode("\xB1\x31");
+            })
+                ->isInstanceOf('\Tiross\json\Exception\MalformedCharactersException')
+                ->hasCode(205)
+                // Message is tested in testThrowException
+        ;
+    }
+
+    /**
+     * @php 5.5
+     * Depth option is available since 5.5
+     */
+    public function testEncode_MaximumDepthException()
+    {
+        $this
+            ->exception(function () {
+                $array = array(
+                    'foo' => array(
+                        'bar' => array(
+                            'baz' => true,
+                        ),
+                    ),
+                );
+
+                $this->newTestedInstance->setDepth(0)->encode($array);
+            })
+                ->isInstanceOf('\Tiross\json\Exception\MaximumDepthException')
+                ->hasCode(201)
+                // Message is tested in testThrowException
+        ;
+    }
+
     public function testEncodeObjectCastedToString()
     {
         return;
@@ -395,7 +533,7 @@ class JSON extends \atoum\test
                     ->isIdenticalTo($encoded)
 
                 ->function('json_encode')
-                    ->wasCalledWithIdenticalArguments((string) $obj, $options, $depth) // normaly failed before 5.5
+                    ->wasCalledWithIdenticalArguments((string) $obj, $options, $depth)
                         ->once
         ;
     }
@@ -599,20 +737,6 @@ class JSON extends \atoum\test
                     ->isInstanceOf('\Tiross\json\Exception\FileNotFoundException')
                     ->hasCode(101)
                     ->hasMessage(sprintf('File "%s" does not exist', $file))
-        ;
-    }
-
-    /** @php 5.5 */
-    public function testEncodeNonUTF8()
-    {
-        return;
-        $this
-            ->exception(function () {
-                $this->newTestedInstance->encode("\xB1\x31");
-            })
-                ->isInstanceOf('\Tiross\json\Exception\MalformedCharactersException')
-                ->hasCode(205)
-                ->hasMessage('Malformed UTF-8 characters, possibly incorrectly encoded')
         ;
     }
 
