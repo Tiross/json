@@ -200,31 +200,50 @@ class JSON extends \atoum\test
         ;
     }
 
-    public function testConvertToUtf8()
-    {
-        return; // Need some time to think of how to do that
-        $this
-            ->if($this->newTestedInstance)
-            ->then
-                ->object($this->testedInstance->convertToUtf8(true))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsZero
-                ->boolean($this->testedInstance->convertToUtf8())->isTrue
-                ->object($this->testedInstance->convertToUtf8(false))->isTestedInstance
-                ->integer($this->testedInstance->getOptions())->IsZero
-                ->boolean($this->testedInstance->convertToUtf8)->isFalse
-        ;
-    }
-
     public function testOptions()
     {
         $this
             ->if($this->newTestedInstance)
+            ->and($opts = rand(0, PHP_INT_MAX))
+            ->and($optionWithConvertEncoding = $opts | testedClass::UTF8_ENCODE)
+            ->and($optionWithoutConvertEncoding = $opts & ~testedClass::UTF8_ENCODE)
             ->then
-                ->object($this->testedInstance->setOptions($opts = rand(0, PHP_INT_MAX)))
+                ->object($this->testedInstance->setOptions($optionWithConvertEncoding))
                     ->isTestedInstance
-
                 ->integer($this->testedInstance->getOptions())
-                    ->IsIdenticalTo($opts)
+                    ->IsIdenticalTo($optionWithConvertEncoding)
+                ->boolean($this->testedInstance->convertToUtf8())
+                    ->isTrue
+
+                ->object($this->testedInstance->setOptions($optionWithoutConvertEncoding))
+                    ->isTestedInstance
+                ->integer($this->testedInstance->getOptions())
+                    ->IsIdenticalTo($optionWithoutConvertEncoding)
+                ->boolean($this->testedInstance->convertToUtf8())
+                    ->isFalse
+        ;
+    }
+
+    public function testConvertToUtf8()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->boolean($this->testedInstance->convertToUtf8())->isFalse
+                ->boolean($this->testedInstance->convertToUtf8)->isFalse
+                ->boolean($this->testedInstance->CONVERTTOUTF8)->isFalse
+
+                ->object($this->testedInstance->convertToUtf8(true))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->isIdenticalTo(testedClass::UTF8_ENCODE)
+                ->boolean($this->testedInstance->convertToUtf8())->isTrue
+                ->boolean($this->testedInstance->convertToUtf8)->isTrue
+                ->boolean($this->testedInstance->CONVERTTOUTF8)->isTrue
+
+                ->object($this->testedInstance->convertToUtf8(false))->isTestedInstance
+                ->integer($this->testedInstance->getOptions())->IsZero
+                ->boolean($this->testedInstance->convertToUtf8())->isFalse
+                ->boolean($this->testedInstance->convertToUtf8)->isFalse
+                ->boolean($this->testedInstance->CONVERTTOUTF8)->isFalse
         ;
     }
 

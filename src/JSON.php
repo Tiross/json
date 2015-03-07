@@ -204,11 +204,19 @@ class JSON
 
     public function getOptions()
     {
+        if ($this->utf8Encode) {
+            return $this->options | static::UTF8_ENCODE;
+        }
+
         return $this->options;
     }
 
-    public function convertToUtf8($mode)
+    public function convertToUtf8($mode = null)
     {
+        if (is_null($mode)) {
+            return $this->utf8Encode;
+        }
+
         $this->utf8Encode = !!$mode;
 
         return $this;
@@ -239,6 +247,16 @@ class JSON
             } else {
                 $this->options &= ~constant($constant);
             }
+        }
+
+        return $this;
+    }
+
+    public function __get($property)
+    {
+        switch (strtolower($property)) {
+            case 'converttoutf8':
+                return $this->$property();
         }
 
         return $this;
