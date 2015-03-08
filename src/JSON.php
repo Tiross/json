@@ -293,7 +293,7 @@ class JSON
      * @return string           Returns a JSON encoded string
      * @throws Tiross\json\Exception\MalformedCharactersException If the value is not in UTF8 (only on PHP >= 5.5)
      */
-    public function e($value, $options = 0)
+    protected function e($value, $options = 0)
     {
         $opts    = $this->getOptions() | $options;
         $encode  = $opts & static::UTF8_ENCODE;
@@ -346,7 +346,7 @@ class JSON
      * @param  integer $options Bitmask using class constants.
      * @return boolean
      */
-    public function ef($json, $file, $options = 0)
+    protected function ef($json, $file, $options = 0)
     {
         return file_put_contents($file, $this->e($json, $options)) !== false;
     }
