@@ -768,6 +768,7 @@ class JSON extends \atoum\test
         ;
     }
 
+    /** @php 5.4 */
     public function testDecodeToArray()
     {
         $this
@@ -777,25 +778,30 @@ class JSON extends \atoum\test
             ->and($depth = $this->testedInstance->getDepth())
 
             ->then
-                ->string($this->testedInstance->decodeToArray($value = uniqid()))
+                ->string($this->testedInstance->decodeToArray($value = uniqid(), $options = rand(0, PHP_INT_MAX)))
                     ->isIdenticalTo($decoded)
                 ->function('json_decode')
-                    ->wasCalledWithIdenticalArguments($value, true, $depth)
+                    ->wasCalledWithIdenticalArguments($value, true, $depth, $options)
                         ->once
         ;
     }
 
-    /**
-     * @dataProvider decodeProvider
-     */
-    public function testDecodeToObject($type, $value, $options)
+    /** @php 5.4 */
+    public function testDecodeToObject()
     {
-        return;
         $this
-            ->given($this->newTestedInstance)
+            ->given($this->function->json_decode = $decoded = uniqid())
+
+            ->if($obj = $this->newTestedInstance)
+            ->and($depth = $this->testedInstance->getDepth())
+            ->and($options = $this->testedInstance->getOptions())
+
             ->then
-                ->$type($this->testedInstance->decodeToObject($value, $options))
-                    ->isEqualTo($this->testedInstance->decode($value, $options, false))
+                ->string($this->testedInstance->decodeToObject($value = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($value, false, $depth, $options)
+                        ->once
         ;
     }
 
