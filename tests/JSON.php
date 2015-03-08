@@ -628,53 +628,141 @@ class JSON extends \atoum\test
     /** @php 5.4 */
     public function testDecode()
     {
-        return;
         $this
-            ->given($this->newTestedInstance)
-            ->if($this->function->json_decode = $decoded = uniqid())
-            ->and($defaultAssoc = false)
-            ->and($defaultDepth = 512)
-            ->and($defaultOptions = 0)
-            ->then
-                ->assert('no options')
-                    ->string($this->testedInstance->decode($json = uniqid()))
-                        ->isIdenticalTo($decoded)
-                    ->function('json_decode')
-                        ->wasCalledWithIdenticalArguments($json, $defaultAssoc, $defaultDepth, $defaultOptions)
-                        ->once
+            ->given($this->function->json_decode = $decoded = uniqid())
 
-                ->assert('force associative with argument')
-                    ->string($this->testedInstance->decode($json = uniqid(), $options = 0, $assoc = true))
+            ->if($obj = $this->newTestedInstance)
+
+            ->assert('no options, arguments')
+                ->if($depth = $this->testedInstance->setDefaults->getDepth())
+                ->and($options = $this->testedInstance->getOptions())
+                ->and($assoc = false)
+                ->then
+                    ->string($this->testedInstance->decode($value = uniqid()))
                         ->isIdenticalTo($decoded)
                     ->function('json_decode')
-                        ->wasCalledWithArguments($json, $assoc, $defaultDepth, $options)
-                        ->once
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth, $options)
+                            ->once
+
+            ->assert('with options as arguments')
+                ->if($depth = $this->testedInstance->setDefaults->getDepth())
+                ->and($options = rand(0, PHP_INT_MAX))
+                ->and($assoc = false)
+                ->then
+                    ->string($this->testedInstance->decode($value = uniqid(), $options))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth, $options)
+                            ->once
+
+            ->assert('with options as instance property')
+                ->if($depth = $this->testedInstance->setDefaults->getDepth())
+                ->and($options = $this->testedInstance->setOptions(rand(0, PHP_INT_MAX))->getOptions())
+                ->and($assoc = false)
+                ->then
+                    ->string($this->testedInstance->decode($value = uniqid()))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth, $options)
+                            ->once
+
+            ->assert('with options both argument and property')
+                ->if($depth = $this->testedInstance->setDefaults->getDepth())
+                ->and($this->testedInstance->setOptions($optsInstance = 1))
+                ->and($optsArguments = 2)
+                ->and($options = $optsInstance | $optsArguments)
+                ->and($assoc = false)
+                ->then
+                    ->string($this->testedInstance->decode($value = uniqid(), $optsArguments))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth, $options)
+                            ->once
+
+            ->assert('change depth')
+                ->if($this->testedInstance->setDefaults->setDepth($depth = rand(0, PHP_INT_MAX)))
+                ->and($options = 0)
+                ->and($assoc = false)
+                ->then
+                    ->string($this->testedInstance->decode($value = uniqid()))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth, $options)
+                            ->once
+
+            ->assert('test assoc')
+                ->if($depth = $this->testedInstance->setDefaults->getDepth())
+                ->and($options = 0)
+                ->and($assoc = true)
+                ->then
+                    ->string($this->testedInstance->decode($value = uniqid(), $options, $assoc))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth, $options)
+                            ->once
+
+            ->assert('exception')
+                ->if($this->function->json_decode = false)
+                ->then
+                    ->exception(function () use ($obj) {
+                        $obj->decode('');
+                    })
+                        ->isInstanceOf('\Exception')
+                        ->hasCode(1)
+                        ->hasMessage('Undefined exception')
         ;
     }
 
     /** @php < 5.4 */
     public function testDecodeBefore54()
     {
-        return;
         $this
-            ->given($this->newTestedInstance)
-            ->if($this->function->json_decode = $decoded = uniqid())
-            ->and($defaultAssoc = false)
-            ->and($defaultDepth = 128)
-            ->then
-                ->assert('no options')
-                    ->string($this->testedInstance->decode($json = uniqid()))
-                        ->isIdenticalTo($decoded)
-                    ->function('json_decode')
-                        ->wasCalledWithIdenticalArguments($json, $defaultAssoc, $defaultDepth)
-                        ->once
+            ->given($this->function->json_decode = $decoded = uniqid())
 
-                ->assert('force associative with argument')
-                    ->string($this->testedInstance->decode($json = uniqid(), $options = 0, $assoc = true))
+            ->if($obj = $this->newTestedInstance)
+
+            ->assert('no options, arguments')
+                ->if($depth = $this->testedInstance->setDefaults->getDepth())
+                ->and($options = $this->testedInstance->getOptions())
+                ->and($assoc = false)
+                ->then
+                    ->string($this->testedInstance->decode($value = uniqid()))
                         ->isIdenticalTo($decoded)
                     ->function('json_decode')
-                        ->wasCalledWithArguments($json, $assoc, $defaultDepth)
-                        ->once
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth)
+                            ->once
+
+            ->assert('change depth')
+                ->if($this->testedInstance->setDefaults->setDepth($depth = rand(0, PHP_INT_MAX)))
+                ->and($options = 0)
+                ->and($assoc = false)
+                ->then
+                    ->string($this->testedInstance->decode($value = uniqid()))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth)
+                            ->once
+
+            ->assert('test assoc')
+                ->if($depth = $this->testedInstance->setDefaults->getDepth())
+                ->and($options = 0)
+                ->and($assoc = true)
+                ->then
+                    ->string($this->testedInstance->decode($value = uniqid(), $options, $assoc))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth)
+                            ->once
+
+            ->assert('exception')
+                ->if($this->function->json_decode = false)
+                ->then
+                    ->exception(function () use ($obj) {
+                        $obj->decode('');
+                    })
+                        ->isInstanceOf('\Exception')
+                        ->hasCode(1)
+                        ->hasMessage('Undefined exception')
         ;
     }
 

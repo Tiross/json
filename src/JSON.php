@@ -345,9 +345,9 @@ class JSON
     public function decode($json, $options = 0, $assoc = false)
     {
         if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
-            $decoded = json_decode($json, $assoc, 512, $this->getOptions() | $options);
+            $decoded = json_decode($json, $assoc, $this->maxDepth, $this->getOptions() | $options);
         } else {
-            $decoded = json_decode($json, $assoc, 128);
+            $decoded = json_decode($json, $assoc, $this->maxDepth);
         }
 
         if (false === $decoded && 'false' !== $json) {
