@@ -630,6 +630,7 @@ class JSON extends \atoum\test
     {
         $this
             ->given($this->function->json_decode = $decoded = uniqid())
+            ->and($this->function->json_last_error = PHP_INT_MAX)
 
             ->if($obj = $this->newTestedInstance)
 
@@ -718,6 +719,7 @@ class JSON extends \atoum\test
     {
         $this
             ->given($this->function->json_decode = $decoded = uniqid())
+            ->and($this->function->json_last_error = PHP_INT_MAX)
 
             ->if($obj = $this->newTestedInstance)
 
