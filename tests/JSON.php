@@ -278,7 +278,7 @@ class JSON extends \atoum\test
     }
 
     /** @php 5.5 */
-    public function testEncode()
+    public function testEncode_Since55()
     {
         $this
             ->given($this->function->json_encode = $encoded = uniqid())
@@ -350,7 +350,7 @@ class JSON extends \atoum\test
     }
 
     /** @php < 5.5 */
-    public function testEncodeBefore55()
+    public function testEncode_Before55()
     {
         $this
             ->given($this->function->json_encode = $encoded = uniqid())
@@ -453,7 +453,7 @@ class JSON extends \atoum\test
     }
 
     /** @php 5.5 */
-    public function testThrowExceptionSince55()
+    public function testThrowException_Since55()
     {
         $this
             ->if($this->newTestedInstance)
@@ -482,7 +482,7 @@ class JSON extends \atoum\test
     }
 
     /** @php 5.5 */
-    public function testEncode_MalformedCharactersException()
+    public function testEncode_MalformedCharactersException_Since55()
     {
         $this
             ->exception(function () {
@@ -498,7 +498,7 @@ class JSON extends \atoum\test
      * @php 5.5
      * Depth option is available since 5.5
      */
-    public function testEncode_MaximumDepthException()
+    public function testEncode_MaximumDepthException_Since55()
     {
         $this
             ->exception(function () {
@@ -539,7 +539,7 @@ class JSON extends \atoum\test
     }
 
     /** @php 5.4 */
-    public function testEncodeJsonisableObject()
+    public function testEncodeJsonisableObject_Since54()
     {
         return;
         $this
@@ -560,7 +560,7 @@ class JSON extends \atoum\test
     }
 
     /** @php 5.4 */
-    public function testEncodeResolutionOrder()
+    public function testEncodeResolutionOrder_Since54()
     {
         return;
         $this
@@ -626,7 +626,7 @@ class JSON extends \atoum\test
     }
 
     /** @php 5.4 */
-    public function testDecode()
+    public function testDecode_Since54()
     {
         $this
             ->given($this->function->json_decode = $decoded = uniqid())
@@ -715,7 +715,7 @@ class JSON extends \atoum\test
     }
 
     /** @php < 5.4 */
-    public function testDecodeBefore54()
+    public function testDecode_Before54()
     {
         $this
             ->given($this->function->json_decode = $decoded = uniqid())
@@ -769,7 +769,7 @@ class JSON extends \atoum\test
     }
 
     /** @php 5.4 */
-    public function testDecodeToArray()
+    public function testDecodeToArray_Since54()
     {
         $this
             ->given($this->function->json_decode = $decoded = uniqid())
@@ -787,7 +787,7 @@ class JSON extends \atoum\test
     }
 
     /** @php < 5.4 */
-    public function testDecodeToArrayBefore54()
+    public function testDecodeToArray_Before54()
     {
         $this
             ->given($this->function->json_decode = $decoded = uniqid())
@@ -805,7 +805,7 @@ class JSON extends \atoum\test
     }
 
     /** @php 5.4 */
-    public function testDecodeToObject()
+    public function testDecodeToObject_Since54()
     {
         $this
             ->given($this->function->json_decode = $decoded = uniqid())
@@ -823,7 +823,7 @@ class JSON extends \atoum\test
     }
 
     /** @php < 5.4 */
-    public function testDecodeToObjectBefore54()
+    public function testDecodeToObject_Before54()
     {
         $this
             ->given($this->function->json_decode = $decoded = uniqid())
@@ -841,7 +841,7 @@ class JSON extends \atoum\test
     }
 
     /** @php 5.4 */
-    public function testDecodeFile()
+    public function testDecodeFile_Since54()
     {
         $this
             ->given($this->function->is_file = true)
@@ -879,7 +879,7 @@ class JSON extends \atoum\test
     }
 
     /** @php < 5.4 */
-    public function testDecodeFileBefore54()
+    public function testDecodeFile_Before54()
     {
         $this
             ->given($this->function->is_file = true)
