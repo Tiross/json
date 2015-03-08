@@ -866,68 +866,6 @@ class JSON extends \atoum\test
             return $php53;
         }
     }
-
-    public function encodeProvider()
-    {
-        $php53 = array(
-            array('test', 0, ''),
-            array(array(1, 2), 0, ''),
-            array(array('foo', 'bar'), 0, ''),
-            array('<test>', testedClass::HEX_TAG, 'hexTag'),
-            array('&nbsp;', testedClass::HEX_AMP, 'hexAmp'),
-            array('"\'', testedClass::HEX_QUOT, 'hexQuot'),
-            array('"\'', testedClass::HEX_APOS, 'hexApos'),
-            array('123', testedClass::NUMERIC_CHECK, 'numericCheck'),
-            array(true, 0, ''),
-            array(null, 0, ''),
-            array(false, 0, ''),
-        );
-
-        $php54 = array(
-            array(PHP_INT_MAX, testedClass::BIGINT_AS_STRING, 'bigintAsString'),
-            array(array(1, 2), testedClass::FORCE_OBJECT, 'forceObject'),
-            array(' /!\\ ', testedClass::UNESCAPED_SLASHES, 'unescapedSlashes'),
-            array('\u00e9', testedClass::UNESCAPED_UNICODE, 'unescapedUnicode'),
-            array(array('foo', 'bar'), testedClass::PRETTY_PRINT, 'prettyPrint'),
-        );
-
-        if (version_compare(phpversion(), '5.4.0', '>=')) {
-            return array_merge($php53, $php54);
-        } else {
-            return $php53;
-        }
-    }
-
-    public function decodeProvider()
-    {
-
-        $scalar = array(
-            array('string', '"test"', 0),
-            array('boolean', 'true', 0),
-            array('boolean', 'false', 0),
-            array('variable', 'null', 0),
-            array('integer', '123', 0),
-            array('float', '1.23', 0),
-        );
-
-        $array = array(
-            array('array', '[1,2,3]', 0),
-            array('object', '{"foo":"bar"}', 0),
-            array('object', '{"foo":["bar","baz"]}', 0),
-            array('object', '{"foo":[1,2,3]}', 0),
-            array('array', '[{"foo":[1]},{"bar":[2]}]', 0),
-        );
-
-        $php54 = array(
-            array('string', '"1234567890"', \JSON_BIGINT_AS_STRING),
-        );
-
-        if (version_compare(phpversion(), '5.4.0', '>=')) {
-            return array_merge($scalar, $array, $php54);
-        } else {
-            return array_merge($scalar, $array);
-        }
-    }
 }
 
 
