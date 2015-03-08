@@ -43,6 +43,30 @@ class JSON extends \atoum\test
         ;
     }
 
+    public function test__call()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->truc())
+                    ->isTestedInstance
+                ->object($this->testedInstance->bidule())
+                    ->isTestedInstance
+        ;
+    }
+
+    public function test__callStatic()
+    {
+        $this
+            ->exception(function () {
+                testedClass::truc();
+            })
+                ->isInstanceOf('\Tiross\json\Exception\UnkownMethodException')
+                ->hasCode(103)
+                ->hasMessage('Call to undefined method Tiross\json\JSON::truc()')
+        ;
+    }
+
     public function testSetDefaults()
     {
         $this
@@ -401,6 +425,62 @@ class JSON extends \atoum\test
         ;
     }
 
+    /** @php 5.5 */
+    public function testEncode_StaticCall_Since55()
+    {
+        $this
+            ->given($this->function->json_encode = $encoded = uniqid())
+            ->and($this->function->utf8_encode = $utf8 = uniqid())
+            ->and($value = uniqid())
+
+            ->assert('no options, no utf8 encode')
+                ->string(testedClass::encode($value))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, 0, 512)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+
+            ->assert('with options, no utf8 encode')
+                ->string(testedClass::encode($value, $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, $options, 512)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+        ;
+    }
+
+    /** @php < 5.5 */
+    public function testEncode_StaticCall_Before55()
+    {
+        $this
+            ->given($this->function->json_encode = $encoded = uniqid())
+            ->and($this->function->utf8_encode = $utf8 = uniqid())
+            ->and($value = uniqid())
+
+            ->assert('no options, no utf8 encode')
+                ->string(testedClass::encode($value))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, 0)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+
+            ->assert('with options, no utf8 encode')
+                ->string(testedClass::encode($value, $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, $options)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+        ;
+    }
+
     public function testThrowException()
     {
         $this
@@ -616,11 +696,19 @@ class JSON extends \atoum\test
             ->given($this->newTestedInstance)
             ->if($this->function->file_put_contents = true)
             ->then
-                ->boolean($this->testedInstance->encodeToFile($value = uniqid(), $file = uniqid()))
+                ->boolean($this->testedInstance->encodeToFile($value = uniqid(), $file = uniqid(), $options = rand(0, PHP_INT_MAX)))
                     ->isTrue
 
                 ->function('file_put_contents')
-                    ->wasCalledWithIdenticalArguments($file, $this->testedInstance->encode($value))
+                    ->wasCalledWithIdenticalArguments($file, $this->testedInstance->encode($value, $options))
+                        ->once
+
+                // Statically
+                ->boolean(testedClass::encodeToFile($value = uniqid(), $file = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isTrue
+
+                ->function('file_put_contents')
+                    ->wasCalledWithIdenticalArguments($file, testedClass::encode($value, $options))
                         ->once
         ;
     }
@@ -915,6 +1003,200 @@ class JSON extends \atoum\test
                     ->hasMessage(sprintf('File "%s" does not exist', $file))
         ;
     }
+
+    /** @php 5.4 */
+    public function testDecode_StaticCall_Since54()
+    {
+        $this
+            ->given($this->function->json_decode = $decoded = uniqid())
+            ->and($this->function->json_last_error = PHP_INT_MAX)
+            ->and($depth = 512)
+
+            ->assert('no options, arguments')
+                ->if($options = 0)
+                ->and($assoc = false)
+                ->then
+                    ->string(testedClass::decode($value = uniqid()))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth, $options)
+                            ->once
+
+            ->assert('with options as arguments')
+                ->if($options = rand(0, PHP_INT_MAX))
+                ->and($assoc = false)
+                ->then
+                    ->string(testedClass::decode($value = uniqid(), $options))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth, $options)
+                            ->once
+
+            ->assert('test assoc')
+                ->if($options = 0)
+                ->and($assoc = true)
+                ->then
+                    ->string(testedClass::decode($value = uniqid(), $options, $assoc))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth, $options)
+                            ->once
+        ;
+    }
+
+    /** @php < 5.4 */
+    public function testDecode_StaticCall_Before54()
+    {
+        $this
+            ->given($this->function->json_decode = $decoded = uniqid())
+            ->and($this->function->json_last_error = PHP_INT_MAX)
+            ->and($depth = 512)
+
+            ->assert('no options, arguments')
+                ->if($assoc = false)
+                ->then
+                    ->string(testedClass::decode($value = uniqid()))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth)
+                            ->once
+
+            ->assert('test assoc')
+                ->if($assoc = true)
+                ->then
+                    ->string(testedClass::decode($value = uniqid(), 0, $assoc))
+                        ->isIdenticalTo($decoded)
+                    ->function('json_decode')
+                        ->wasCalledWithIdenticalArguments($value, $assoc, $depth)
+                            ->once
+        ;
+    }
+
+    /** @php 5.4 */
+    public function testDecodeToArray_StaticCall_Since54()
+    {
+        $this
+            ->if($this->function->json_decode = $decoded = uniqid())
+            ->then
+                ->string(testedClass::decodeToArray($value = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($value, true, 512, $options)
+                        ->once
+        ;
+    }
+
+    /** @php < 5.4 */
+    public function testDecodeToArray_StaticCall_Before54()
+    {
+        $this
+            ->if($this->function->json_decode = $decoded = uniqid())
+            ->then
+                ->string(testedClass::decodeToArray($value = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($value, true, 512) // removed $options
+                        ->once
+        ;
+    }
+
+    /** @php 5.4 */
+    public function testDecodeToObject_StaticCall_Since54()
+    {
+        $this
+            ->if($this->function->json_decode = $decoded = uniqid())
+            ->then
+                ->string(testedClass::decodeToObject($value = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($value, false, 512, $options)
+                        ->once
+        ;
+    }
+
+    /** @php < 5.4 */
+    public function testDecodeToObject_StaticCall_Before54()
+    {
+        $this
+            ->if($this->function->json_decode = $decoded = uniqid())
+            ->then
+                ->string(testedClass::decodeToObject($value = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($value, false, 512) // removed $options
+                        ->once
+        ;
+    }
+
+    /** @php 5.4 */
+    public function testDecodeFile_StaticCall_Since54()
+    {
+        $this
+            ->if($this->function->is_file = true)
+            ->and($this->function->file_get_contents = $fileContent = uniqid())
+            ->and($this->function->json_decode = $decoded = uniqid())
+
+            ->then
+                ->string(testedClass::decodeFile($file = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+
+                ->function('is_file')
+                    ->wasCalledWithIdenticalArguments($file)
+                        ->once
+
+                ->function('file_get_contents')
+                    ->wasCalledWithIdenticalArguments($file)
+                        ->once
+
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($fileContent, false, 512, $options)
+                        ->once
+
+            ->if($this->function->is_file = false)
+            ->then
+                ->exception(function () use ($file) {
+                    testedClass::decodeFile($file);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\FileNotFoundException')
+                    ->hasCode(101)
+                    ->hasMessage(sprintf('File "%s" does not exist', $file))
+        ;
+    }
+
+    /** @php < 5.4 */
+    public function testDecodeFile_StaticCall_Before54()
+    {
+        $this
+            ->if($this->function->is_file = true)
+            ->and($this->function->file_get_contents = $fileContent = uniqid())
+            ->and($this->function->json_decode = $decoded = uniqid())
+            ->then
+                ->string(testedClass::decodeFile($file = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+
+                ->function('is_file')
+                    ->wasCalledWithIdenticalArguments($file)
+                        ->once
+
+                ->function('file_get_contents')
+                    ->wasCalledWithIdenticalArguments($file)
+                        ->once
+
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($fileContent, false, 512) // removed $options
+                        ->once
+
+            ->if($this->function->is_file = false)
+            ->then
+                ->exception(function () use ($file) {
+                    testedClass::decodeFile($file);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\FileNotFoundException')
+                    ->hasCode(101)
+                    ->hasMessage(sprintf('File "%s" does not exist', $file))
+        ;
+    }
+
 
     public function constantProvider()
     {

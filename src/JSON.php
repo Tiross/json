@@ -234,22 +234,68 @@ class JSON
         return $this->maxDepth;
     }
 
-    public function __call($method, $args)
+    public function __call($method, $arguments)
     {
-        $add = !!$args[0];
+        $name = null;
 
-        $constant = preg_replace('`([A-Z])`', '_$1', $method);
-        $constant = '\Tiross\json\JSON::' . strtoupper($constant);
+        switch (strtolower($method)) {
+            case 'encode':
+                $name = $name ?: 'e';
+                // no break;
 
-        if (defined($constant)) {
-            if ($add) {
-                $this->options |= constant($constant);
-            } else {
-                $this->options &= ~constant($constant);
-            }
+            case 'encodetofile':
+                $name = $name ?: 'ef';
+                // no break;
+
+            case 'decode':
+                $name = $name ?: 'd';
+                // no break;
+
+            case 'decodetoarray':
+                $name = $name ?: 'da';
+                // no break;
+
+            case 'decodetoobject':
+                $name = $name ?: 'dj';
+                // no break;
+
+            case 'decodefile':
+                $name = $name ?: 'df';
+                return call_user_func_array(array($this, $name), $arguments);
+                break;
+
+            default:
+                $add = array_key_exists(0, $arguments) && !!$arguments[0];
+
+                $constant = preg_replace('`([A-Z])`', '_$1', $method);
+                $constant = '\Tiross\json\JSON::' . strtoupper($constant);
+
+                if (defined($constant)) {
+                    if ($add) {
+                        $this->options |= constant($constant);
+                    } else {
+                        $this->options &= ~constant($constant);
+                    }
+                }
         }
 
         return $this;
+    }
+
+    public static function __callStatic($method, $arguments)
+    {
+        switch (strtolower($method)) {
+            case 'encode':
+            case 'encodetofile':
+
+            case 'decode':
+            case 'decodetoarray':
+            case 'decodetoobject':
+            case 'decodefile':
+                return call_user_func_array(array(new static, $method), $arguments);
+        }
+
+        throw new Exception\UnkownMethodException(sprintf('Call to undefined method %s::%s()', __CLASS__, $method), 103);
     }
 
     public function __get($property)
@@ -273,7 +319,7 @@ class JSON
      * @return string           Returns a JSON encoded string
      * @throws Tiross\json\Exception\MalformedCharactersException If the value is not in UTF8 (only on PHP >= 5.5)
      */
-    public function encode($value, $options = 0)
+    protected function e($value, $options = 0)
     {
         $opts    = $this->getOptions() | $options;
         $encode  = $opts & static::UTF8_ENCODE;
@@ -326,9 +372,9 @@ class JSON
      * @param  integer $options Bitmask using class constants.
      * @return boolean
      */
-    public function encodeToFile($json, $file, $options = 0)
+    protected function ef($json, $file, $options = 0)
     {
-        return file_put_contents($file, $this->encode($json, $options)) !== false;
+        return file_put_contents($file, $this->e($json, $options)) !== false;
     }
 
 
@@ -342,7 +388,7 @@ class JSON
      * @param  boolean $assoc   When `TRUE`, returned objects will be converted into associative arrays.
      * @return mixed
      */
-    public function decode($json, $options = 0, $assoc = false)
+    protected function d($json, $options = 0, $assoc = false)
     {
         if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
             $decoded = json_decode($json, $assoc, $this->maxDepth, $this->getOptions() | $options);
@@ -368,7 +414,7 @@ class JSON
      *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
      * @return mixed
      */
-    public function decodeToArray($json, $options = 0)
+    protected function da($json, $options = 0)
     {
         return $this->decode($json, $options, true);
     }
@@ -384,7 +430,7 @@ class JSON
      *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
      * @return mixed
      */
-    public function decodeToObject($json, $options = 0)
+    protected function dj($json, $options = 0) // do was invalid, reserved name
     {
         return $this->decode($json, $options, false);
     }
@@ -401,7 +447,7 @@ class JSON
      * @throws Exception\FileNotFoundException Thrown when $file is not a file
      * @return mixed
      */
-    public function decodeFile($file, $options = 0)
+    protected function df($file, $options = 0)
     {
         if (!is_file($file)) {
             throw new Exception\FileNotFoundException(sprintf('File "%s" does not exist', $file), 101);
