@@ -794,7 +794,6 @@ class JSON extends \atoum\test
 
             ->if($obj = $this->newTestedInstance)
             ->and($depth = $this->testedInstance->getDepth())
-            ->and($options = $this->testedInstance->getOptions())
 
             ->then
                 ->string($this->testedInstance->decodeToObject($value = uniqid(), $options = rand(0, PHP_INT_MAX)))
@@ -805,25 +804,37 @@ class JSON extends \atoum\test
         ;
     }
 
+    /** @php 5.4 */
     public function testDecodeFile()
     {
-        return;
         $this
             ->given($this->function->is_file = true)
-            ->and($this->function->file_get_contents = true)
-            ->if($this->newTestedInstance->decodeFile($file = uniqid()))
+            ->and($this->function->file_get_contents = $fileContent = uniqid())
+            ->and($this->function->json_decode = $decoded = uniqid())
+
+            ->if($obj = $this->newTestedInstance)
+            ->and($depth = $this->testedInstance->getDepth())
+
             ->then
+                ->string($this->testedInstance->decodeFile($file = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+
                 ->function('is_file')
                     ->wasCalledWithIdenticalArguments($file)
-                    ->once
+                        ->once
+
                 ->function('file_get_contents')
                     ->wasCalledWithIdenticalArguments($file)
-                    ->once
+                        ->once
+
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($fileContent, false, $depth, $options)
+                        ->once
 
             ->if($this->function->is_file = false)
             ->then
-                ->exception(function () use ($file) {
-                    $this->newTestedInstance->decodeFile($file);
+                ->exception(function () use ($obj, $file) {
+                    $obj->decodeFile($file);
                 })
                     ->isInstanceOf('\Tiross\json\Exception\FileNotFoundException')
                     ->hasCode(101)
