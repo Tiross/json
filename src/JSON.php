@@ -265,7 +265,7 @@ class JSON
                 break;
 
             default:
-                $add = !!$arguments[0];
+                $add = array_key_exists(0, $arguments) && !!$arguments[0];
 
                 $constant = preg_replace('`([A-Z])`', '_$1', $method);
                 $constant = '\Tiross\json\JSON::' . strtoupper($constant);
@@ -294,6 +294,8 @@ class JSON
             case 'decodefile':
                 return call_user_func_array(array(new static, $method), $arguments);
         }
+
+        throw new Exception\UnkownMethodException(sprintf('Call to undefined method %s::%s()', __CLASS__, $method), 103);
     }
 
     public function __get($property)

@@ -43,6 +43,30 @@ class JSON extends \atoum\test
         ;
     }
 
+    public function test__call()
+    {
+        $this
+            ->if($this->newTestedInstance)
+            ->then
+                ->object($this->testedInstance->truc())
+                    ->isTestedInstance
+                ->object($this->testedInstance->bidule())
+                    ->isTestedInstance
+        ;
+    }
+
+    public function test__callStatic()
+    {
+        $this
+            ->exception(function () {
+                testedClass::truc();
+            })
+                ->isInstanceOf('\Tiross\json\Exception\UnkownMethodException')
+                ->hasCode(103)
+                ->hasMessage('Call to undefined method Tiross\json\JSON::truc()')
+        ;
+    }
+
     public function testSetDefaults()
     {
         $this
