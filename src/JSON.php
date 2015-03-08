@@ -236,13 +236,32 @@ class JSON
 
     public function __call($method, $arguments)
     {
+        $name = null;
+
         switch (strtolower($method)) {
             case 'encode':
-                return call_user_func_array(array($this, 'e'), $arguments);
-                break;
+                $name = $name ?: 'e';
+                // no break;
 
             case 'encodetofile':
-                return call_user_func_array(array($this, 'ef'), $arguments);
+                $name = $name ?: 'ef';
+                // no break;
+
+            case 'decode':
+                $name = $name ?: 'd';
+                // no break;
+
+            case 'decodetoarray':
+                $name = $name ?: 'da';
+                // no break;
+
+            case 'decodetoobject':
+                $name = $name ?: 'dj';
+                // no break;
+
+            case 'decodefile':
+                $name = $name ?: 'df';
+                return call_user_func_array(array($this, $name), $arguments);
                 break;
 
             default:
@@ -268,6 +287,11 @@ class JSON
         switch (strtolower($method)) {
             case 'encode':
             case 'encodetofile':
+
+            case 'decode':
+            case 'decodetoarray':
+            case 'decodetoobject':
+            case 'decodefile':
                 return call_user_func_array(array(new static, $method), $arguments);
         }
     }
@@ -362,7 +386,7 @@ class JSON
      * @param  boolean $assoc   When `TRUE`, returned objects will be converted into associative arrays.
      * @return mixed
      */
-    public function decode($json, $options = 0, $assoc = false)
+    protected function d($json, $options = 0, $assoc = false)
     {
         if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
             $decoded = json_decode($json, $assoc, $this->maxDepth, $this->getOptions() | $options);
@@ -388,7 +412,7 @@ class JSON
      *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
      * @return mixed
      */
-    public function decodeToArray($json, $options = 0)
+    protected function da($json, $options = 0)
     {
         return $this->decode($json, $options, true);
     }
@@ -404,7 +428,7 @@ class JSON
      *   Currently only `JSON_BIGINT_AS_STRING` is supported (default is to cast large integers as floats).
      * @return mixed
      */
-    public function decodeToObject($json, $options = 0)
+    protected function dj($json, $options = 0) // do was invalid, reserved name
     {
         return $this->decode($json, $options, false);
     }
@@ -421,7 +445,7 @@ class JSON
      * @throws Exception\FileNotFoundException Thrown when $file is not a file
      * @return mixed
      */
-    public function decodeFile($file, $options = 0)
+    protected function df($file, $options = 0)
     {
         if (!is_file($file)) {
             throw new Exception\FileNotFoundException(sprintf('File "%s" does not exist', $file), 101);
