@@ -786,6 +786,24 @@ class JSON extends \atoum\test
         ;
     }
 
+    /** @php < 5.4 */
+    public function testDecodeToArrayBefore54()
+    {
+        $this
+            ->given($this->function->json_decode = $decoded = uniqid())
+
+            ->if($obj = $this->newTestedInstance)
+            ->and($depth = $this->testedInstance->getDepth())
+
+            ->then
+                ->string($this->testedInstance->decodeToArray($value = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($value, true, $depth) // removed $options
+                        ->once
+        ;
+    }
+
     /** @php 5.4 */
     public function testDecodeToObject()
     {
@@ -800,6 +818,24 @@ class JSON extends \atoum\test
                     ->isIdenticalTo($decoded)
                 ->function('json_decode')
                     ->wasCalledWithIdenticalArguments($value, false, $depth, $options)
+                        ->once
+        ;
+    }
+
+    /** @php < 5.4 */
+    public function testDecodeToObjectBefore54()
+    {
+        $this
+            ->given($this->function->json_decode = $decoded = uniqid())
+
+            ->if($obj = $this->newTestedInstance)
+            ->and($depth = $this->testedInstance->getDepth())
+
+            ->then
+                ->string($this->testedInstance->decodeToObject($value = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($value, false, $depth) // removed $options
                         ->once
         ;
     }
@@ -829,6 +865,44 @@ class JSON extends \atoum\test
 
                 ->function('json_decode')
                     ->wasCalledWithIdenticalArguments($fileContent, false, $depth, $options)
+                        ->once
+
+            ->if($this->function->is_file = false)
+            ->then
+                ->exception(function () use ($obj, $file) {
+                    $obj->decodeFile($file);
+                })
+                    ->isInstanceOf('\Tiross\json\Exception\FileNotFoundException')
+                    ->hasCode(101)
+                    ->hasMessage(sprintf('File "%s" does not exist', $file))
+        ;
+    }
+
+    /** @php < 5.4 */
+    public function testDecodeFileBefore54()
+    {
+        $this
+            ->given($this->function->is_file = true)
+            ->and($this->function->file_get_contents = $fileContent = uniqid())
+            ->and($this->function->json_decode = $decoded = uniqid())
+
+            ->if($obj = $this->newTestedInstance)
+            ->and($depth = $this->testedInstance->getDepth())
+
+            ->then
+                ->string($this->testedInstance->decodeFile($file = uniqid(), $options = rand(0, PHP_INT_MAX)))
+                    ->isIdenticalTo($decoded)
+
+                ->function('is_file')
+                    ->wasCalledWithIdenticalArguments($file)
+                        ->once
+
+                ->function('file_get_contents')
+                    ->wasCalledWithIdenticalArguments($file)
+                        ->once
+
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($fileContent, false, $depth) // removed $options
                         ->once
 
             ->if($this->function->is_file = false)
