@@ -234,22 +234,42 @@ class JSON
         return $this->maxDepth;
     }
 
-    public function __call($method, $args)
+    public function __call($method, $arguments)
     {
-        $add = !!$args[0];
+        switch (strtolower($method)) {
+            case 'encode':
+                return call_user_func_array(array($this, 'e'), $arguments);
+                break;
 
-        $constant = preg_replace('`([A-Z])`', '_$1', $method);
-        $constant = '\Tiross\json\JSON::' . strtoupper($constant);
+            case 'encodetofile':
+                return call_user_func_array(array($this, 'ef'), $arguments);
+                break;
 
-        if (defined($constant)) {
-            if ($add) {
-                $this->options |= constant($constant);
-            } else {
-                $this->options &= ~constant($constant);
-            }
+            default:
+                $add = !!$arguments[0];
+
+                $constant = preg_replace('`([A-Z])`', '_$1', $method);
+                $constant = '\Tiross\json\JSON::' . strtoupper($constant);
+
+                if (defined($constant)) {
+                    if ($add) {
+                        $this->options |= constant($constant);
+                    } else {
+                        $this->options &= ~constant($constant);
+                    }
+                }
         }
 
         return $this;
+    }
+
+    public static function __callStatic($method, $arguments)
+    {
+        switch (strtolower($method)) {
+            case 'encode':
+            case 'encodetofile':
+                return call_user_func_array(array(new static, $method), $arguments);
+        }
     }
 
     public function __get($property)
@@ -273,7 +293,7 @@ class JSON
      * @return string           Returns a JSON encoded string
      * @throws Tiross\json\Exception\MalformedCharactersException If the value is not in UTF8 (only on PHP >= 5.5)
      */
-    public function encode($value, $options = 0)
+    public function e($value, $options = 0)
     {
         $opts    = $this->getOptions() | $options;
         $encode  = $opts & static::UTF8_ENCODE;
@@ -326,9 +346,9 @@ class JSON
      * @param  integer $options Bitmask using class constants.
      * @return boolean
      */
-    public function encodeToFile($json, $file, $options = 0)
+    public function ef($json, $file, $options = 0)
     {
-        return file_put_contents($file, $this->encode($json, $options)) !== false;
+        return file_put_contents($file, $this->e($json, $options)) !== false;
     }
 
 

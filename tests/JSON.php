@@ -401,6 +401,44 @@ class JSON extends \atoum\test
         ;
     }
 
+    /** @php 5.5 */
+    public function testEncode_StaticCall_Since55()
+    {
+        $this
+            ->given($this->function->json_encode = $encoded = uniqid())
+            ->and($this->function->utf8_encode = $utf8 = uniqid())
+            ->and($value = uniqid())
+
+            ->assert('no options, no utf8 encode')
+                ->string(testedClass::encode($value))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, 0, 512)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+        ;
+    }
+
+    /** @php < 5.5 */
+    public function testEncode_StaticCall_Before55()
+    {
+        $this
+            ->given($this->function->json_encode = $encoded = uniqid())
+            ->and($this->function->utf8_encode = $utf8 = uniqid())
+            ->and($value = uniqid())
+
+            ->assert('no options, no utf8 encode')
+                ->string(testedClass::encode($value))
+                    ->isIdenticalTo($encoded)
+                ->function('json_encode')
+                    ->wasCalledWithIdenticalArguments($value, 0)
+                        ->once
+                ->function('utf8_encode')
+                    ->wasCalled->never
+        ;
+    }
+
     public function testThrowException()
     {
         $this
