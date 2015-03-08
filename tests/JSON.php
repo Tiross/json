@@ -768,21 +768,20 @@ class JSON extends \atoum\test
         ;
     }
 
-    /**
-     * @dataProvider decodeProvider
-     */
-    public function testDecodeToArray($type, $value, $options)
+    public function testDecodeToArray()
     {
-        return;
-        if ($type == 'object') {
-            $type = 'array';
-        }
-
         $this
-            ->given($this->newTestedInstance)
+            ->given($this->function->json_decode = $decoded = uniqid())
+
+            ->if($obj = $this->newTestedInstance)
+            ->and($depth = $this->testedInstance->getDepth())
+
             ->then
-                ->$type($this->testedInstance->decodeToArray($value, $options))
-                    ->isIdenticalTo($this->testedInstance->decode($value, $options, true))
+                ->string($this->testedInstance->decodeToArray($value = uniqid()))
+                    ->isIdenticalTo($decoded)
+                ->function('json_decode')
+                    ->wasCalledWithIdenticalArguments($value, true, $depth)
+                        ->once
         ;
     }
 
