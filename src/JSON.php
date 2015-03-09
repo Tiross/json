@@ -33,22 +33,6 @@ if (!defined('JSON_UNESCAPED_UNICODE')) {
     define('JSON_UNESCAPED_UNICODE', 0);
 }
 
-/** @ignore */
-if (!defined('JSON_ERROR_RECURSION')) {
-    define('JSON_ERROR_RECURSION', 0);
-}
-
-/** @ignore */
-if (!defined('JSON_ERROR_INF_OR_NAN')) {
-    define('JSON_ERROR_INF_OR_NAN', 0);
-}
-
-/** @ignore */
-if (!defined('JSON_ERROR_UNSUPPORTED_TYPE')) {
-    define('JSON_ERROR_UNSUPPORTED_TYPE', 0);
-}
-
-
 
 /**
  * JSON representation made easy with non UTF8 values
