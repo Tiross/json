@@ -1,5 +1,5 @@
 {
-  "name": "Tiross/json",
+  "name": "tiross/json",
   "description": "JSON representation made easy with non UTF8 values",
   "license": "MIT",
   "keywords": ["json","charset","utf8"],
