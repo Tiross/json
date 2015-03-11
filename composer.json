@@ -17,6 +17,10 @@
   "autoload": {
     "psr-4": {"Tiross\\json\\": "src/"}
   },
+  "require": {
+    "php": ">=5.3",
+    "ext-json": "*"
+  },
   "require-dev": {
     "atoum/atoum": "2.*",
     "codeclimate/php-test-reporter": "dev-master"
