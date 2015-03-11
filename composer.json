@@ -23,6 +23,7 @@
   },
   "require-dev": {
     "atoum/atoum": "2.*",
-    "satooshi/php-coveralls": "dev-master"
+    "satooshi/php-coveralls": "dev-master",
+    "scrutinizer/ocular": "dev-master"
   }
 }
