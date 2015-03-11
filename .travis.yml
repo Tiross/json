@@ -18,4 +18,8 @@ before_script:
   - mkdir -p build/logs
 script: ./vendor/bin/atoum
 after_script:
-  - php vendor/bin/coveralls -v
+  - ./vendor/bin/coveralls -v
+  - ./vendor/bin/test-reporter
+addons:
+  code_climate:
+    repo_token: 2cc18d63966954312cb7ccd1edff08f5aa638cb3b361c6f671ef3a4188eced81
