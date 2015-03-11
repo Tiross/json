@@ -1,6 +1,6 @@
 {
   "name": "tiross/json",
-  "description": "JSON representation made easy with non UTF8 values",
+  "description": "Easy JSON representation",
   "license": "MIT",
   "keywords": ["json","charset","utf8"],
   "authors": [
