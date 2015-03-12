@@ -354,7 +354,6 @@ class JSON
      * If `$file` does not exist, the file is created.
      * Otherwise, the existing file is overwritten,
      *
-     * @param  mixed   $value   The value being encoded.
      * @param  string  $file    Path to the file where to write the data.
      * @param  integer $options Bitmask using class constants.
      * @return boolean
