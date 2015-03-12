@@ -284,7 +284,8 @@ class JSON
                 return call_user_func_array(array(new static, $method), $arguments);
         }
 
-        throw new Exception\UnkownMethodException(sprintf('Call to undefined method %s::%s()', __CLASS__, $method), 103);
+        $message = sprintf('Call to undefined method %s::%s()', __CLASS__, $method);
+        throw new Exception\UnkownMethodException($message, 103);
     }
 
     public function __get($property)
