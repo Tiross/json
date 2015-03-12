@@ -141,7 +141,7 @@ class JSON
      * Force encoding to UTF8.
      * @var integer
      */
-    const UTF8_ENCODE = 1048576; // pow(2, 20)
+    const UTF8_ENCODE = 1048576; // 2^20
 
     /**
      * Options passed to instance
@@ -249,7 +249,7 @@ class JSON
             case 'decodefile':
                 $name = $name ?: 'df';
                 return call_user_func_array(array($this, $name), $arguments);
-                break;
+                // useless break after a return
 
             default:
                 $add = array_key_exists(0, $arguments) && !!$arguments[0];
@@ -354,7 +354,7 @@ class JSON
      * If `$file` does not exist, the file is created.
      * Otherwise, the existing file is overwritten,
      *
-     * @param  mixed   $value   The value being encoded.
+     * @param  mixed   $json    The value being encoded.
      * @param  string  $file    Path to the file where to write the data.
      * @param  integer $options Bitmask using class constants.
      * @return boolean
