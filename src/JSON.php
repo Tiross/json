@@ -42,6 +42,8 @@ if (!defined('JSON_UNESCAPED_UNICODE')) {
  * @see http://php.net/manual/en/book.json.php JSON on PHP.net
  * @see http://json.org/ JSON.org
  * @author Tiross
+ * @method string encode(mixed $value, integer $options = 0) Returns the JSON representation of a value
+ * @method mixed decode(string $json, integer $options = 0, boolean $assoc = false) Decodes a JSON string
  */
 class JSON
 {
