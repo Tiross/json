@@ -12,7 +12,7 @@ filter:
     - tests/*
     - vendor/*
     - .atoum.php
-    -.bootstrap.atoum.php
+    - .bootstrap.atoum.php
 coding_style:
   php:
     spaces:
